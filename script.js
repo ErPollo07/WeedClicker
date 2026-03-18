@@ -79,8 +79,8 @@ function loadGame() {
     if (typeof savedGame.prestigeMultiplier !== "undefined") prestigeMultiplier = savedGame.prestigeMultiplier;
     if (typeof savedGame.clickUpgradeCost !== "undefined") clickUpgradeCost = savedGame.clickUpgradeCost;
     if (typeof savedGame.autoClickerCost !== "undefined") autoClickerCost = savedGame.autoClickerCost;
-    if (typeof savedGame.dryCost !== "undefined") factoryCost = savedGame.dryCost;
-    if (typeof savedGame.frozenCost !== "undefined") factoryCost = savedGame.frozenCost;
+    if (typeof savedGame.dryCost !== "undefined") dryCost = savedGame.dryCost;
+    if (typeof savedGame.frozenCost !== "undefined") frozenCost = savedGame.frozenCost;
     if (typeof savedGame.mysteryCost !== "undefined") mysteryCost = savedGame.mysteryCost;
     if (typeof savedGame.prestigeThreshold !== "undefined") prestigeThreshold = savedGame.prestigeThreshold;
 
