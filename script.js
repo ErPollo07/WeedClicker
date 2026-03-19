@@ -289,7 +289,7 @@ function doPrestige() {
 
     hasUpgrade1 = false; hasUpgrade2 = false; hasUpgrade3 = false; hasUpgrade4 = false;
 
-    alert("Hai fatto Prestigio! Ora il tuo moltiplicatore è x" + prestigeMultiplier + " e hai guadagnato 1 Epstein Token! 🔷");
+    alert("Hai fatto Prestigio! Ora il tuo moltiplicatore è x" + prestigeMultiplier + " e hai guadagnato 2 Epstein Token! 🔷");
     updateDisplay(); saveGame(); switchPage('forno');
   }
 }
