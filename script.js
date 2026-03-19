@@ -608,10 +608,10 @@ function updateDisplay() {
   setUpgBtnState(btnUpg2, hasUpgrade2, 10000, "✨ Cocaina (WPS x2)");
   setUpgBtnState(btnUpg3, hasUpgrade3, 50000, "🍫 Robba buona (Click x3)");
   setUpgBtnState(btnUpg4, hasUpgrade4, 100000, "🔥 ts lit as fuck (WPS x3)");
-  setUpgBtnState(document.getElementById('btn-upg5'), hasUpgrade5, 300000, "🌙 Notte Fonda (Click x4)");
+  setUpgBtnState(document.getElementById('btn-upg5'), hasUpgrade5, 300000, "🌙 Stephen Hawking (Click x4)");
   setUpgBtnState(document.getElementById('btn-upg6'), hasUpgrade6, 750000, "💊 Pasticche (WPS x4)");
-  setUpgBtnState(document.getElementById('btn-upg7'), hasUpgrade7, 2000000, "🎯 Cecchino (Click x5)");
-  setUpgBtnState(document.getElementById('btn-upg8'), hasUpgrade8, 5000000, "🏔️ El Chapo Mode (WPS x5)");
+  setUpgBtnState(document.getElementById('btn-upg7'), hasUpgrade7, 2000000, "🎯 Triple T (Click x5)");
+  setUpgBtnState(document.getElementById('btn-upg8'), hasUpgrade8, 5000000, "🏔️ Crazy Mode (WPS x5)");
 
   function setPermanentBtnState(btn, hasBought, cost, title) {
     if (hasBought) {
@@ -630,13 +630,13 @@ function updateDisplay() {
   setPermanentBtnState(document.getElementById('btn-perm3'), hasPermanent3, 15, "Prestigio x1.5");
   setPermanentBtnState(document.getElementById('btn-perm4'), hasPermanent4, 25, "BPS x3");
   setPermanentBtnState(document.getElementById('btn-perm5'), hasPermanent5, 30, "Token/s");
-  setPermanentBtnState(document.getElementById('btn-perm6'), hasPermanent6, 40, "🟢 Erba Premium (Click x5)");
-  setPermanentBtnState(document.getElementById('btn-perm7'), hasPermanent7, 50, "🌿 Serra Perpetua (BPS x5)");
-  setPermanentBtnState(document.getElementById('btn-perm8'), hasPermanent8, 60, "🧑‍💼 Rete di Spaccio (Token/s x2)");
-  setPermanentBtnState(document.getElementById('btn-perm9'), hasPermanent9, 75, "💎 Diamante Grezzo (Click x8)");
-  setPermanentBtnState(document.getElementById('btn-perm10'), hasPermanent10, 90, "🏭 Cartel Mode (BPS x8)");
+  setPermanentBtnState(document.getElementById('btn-perm6'), hasPermanent6, 40, "Erba Premium (Click x5)");
+  setPermanentBtnState(document.getElementById('btn-perm7'), hasPermanent7, 50, "Shit molto crazy (BPS x5)");
+  setPermanentBtnState(document.getElementById('btn-perm8'), hasPermanent8, 60, "Rete di Spaccio (Token/s x2)");
+  setPermanentBtnState(document.getElementById('btn-perm9'), hasPermanent9, 75, "Jean-Michelle-Basquiat (Click x8)");
+  setPermanentBtnState(document.getElementById('btn-perm10'), hasPermanent10, 90, "Walter White (BPS x8)");
   setPermanentBtnState(document.getElementById('btn-perm11'), hasPermanent11, 100, "₿ BTC Boost (Miner x2)");
-  setPermanentBtnState(document.getElementById('btn-perm12'), hasPermanent12, 120, "🌌 God Mode (Tutto x2)");
+  setPermanentBtnState(document.getElementById('btn-perm12'), hasPermanent12, 120, "🌌 Zanotti Sgravo Mode (Tutto x2)");
 }
 
 function upgradeBattlePass() {
