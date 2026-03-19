@@ -1,9 +1,9 @@
 // --- VARIABILI DEL GIOCO ---
 let score = 0;
-let clickPower = 100000;
+let clickPower = 1;
 let autoClickBPS = 0;
 let prestigeMultiplier = 1;
-let epsteinTokens = 1110;
+let epsteinTokens = 0;
 let battlePassLevel = 0;
 
 let clickUpgradeCost = 10;
