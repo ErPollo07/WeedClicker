@@ -16,9 +16,10 @@
 
 <div id="nav-bar">
     <button id="nav-forno" class="nav-btn active" onclick="switchPage('forno')">Il Giro</button>
-    <button id="nav-upgrades" class="nav-btn" onclick="switchPage('upgrades')">Roba Buona</button>
+    <button id="nav-upgrades" class="nav-btn" onclick="switchPage('upgrades')">Robba Buona</button>
     <button id="nav-permanent" class="nav-btn" onclick="switchPage('permanent')">L'isola</button>
     <button id="nav-casino" class="nav-btn" onclick="switchPage('casino')">🎡 Crazy Time!</button>
+    <button id="nav-battlepass" class="nav-btn" onclick="switchPage('battlepass')">Battle Pass</button>
 </div>
 
 <div id="game-container">
@@ -81,8 +82,9 @@
         <div class="shop">
             <button id="btn-perm1" class="upg-btn" onclick="buyPermanentUpgrade(1, 5)">🔹 Click x3 (5 Token)</button>
             <button id="btn-perm2" class="upg-btn" onclick="buyPermanentUpgrade(2, 10)">🔹 BPS x3 (10 Token)</button>
-            <button id="btn-perm3" class="upg-btn" onclick="buyPermanentUpgrade(3, 15)">🔹 Prestigio x3 (15 Token)</button>
+            <button id="btn-perm3" class="upg-btn" onclick="buyPermanentUpgrade(3, 15)">🔹 Prestigio x1.5 (15 Token)</button>
             <button id="btn-perm4" class="upg-btn" onclick="buyPermanentUpgrade(4, 25)">🔹 BPS x3 (25 Token)</button>
+            <button id="btn-perm5" class="upg-btn" onclick="buyPermanentUpgrade(5, 30)">🔹 Token/s (30 Token)</button>
         </div>
     </div>
 
@@ -107,6 +109,22 @@
             <button id="btn-mystery" onclick="spinWheel()">
                 🎡 Gira la Ruota (Costo: <span id="mystery-cost">1000</span>)
             </button>
+        </div>
+    </div>
+
+    <div id="page-battlepass" class="page">
+        <h2>Battle Pass Epstein</h2>
+        <div class="info-box">
+            Spendi gli Epstein Tokens per sbloccare livelli e ricompense permanenti! Ogni livello costa di più.
+        </div>
+        <div class="battlepass-progress">
+            <div>Livello Attuale: <span id="bp-level">0</span></div>
+            <div>Costo Prossimo Livello: <span id="bp-next-cost">5</span> Tokens</div>
+            <button id="btn-upgrade-bp" onclick="upgradeBattlePass()">Sblocca Livello</button>
+        </div>
+        <div class="battlepass-rewards">
+            <h3>Ricompense Sbloccate:</h3>
+            <ul id="bp-rewards-list"></ul>
         </div>
     </div>
 

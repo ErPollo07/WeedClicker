@@ -3,7 +3,8 @@ let score = 0;
 let clickPower = 100000;
 let autoClickBPS = 0;
 let prestigeMultiplier = 1;
-let epsteinTokens = 0;
+let epsteinTokens = 1110;
+let battlePassLevel = 0;
 
 let clickUpgradeCost = 10;
 let autoClickerCost = 50;
@@ -23,6 +24,7 @@ let hasPermanent1 = false; // Click multiplier
 let hasPermanent2 = false; // BPS multiplier
 let hasPermanent3 = false; // Prestige multiplier
 let hasPermanent4 = false; // BPS multiplier
+let hasPermanent5 = false; // Token per second
 let permanentClickMultiplier = 1;
 let permanentBpsMultiplier = 1;
 let permanentPrestigeMultiplier = 1;
@@ -71,12 +73,12 @@ function getEffBps() {
 function saveGame() {
   const gameSave = {
     score: score, clickPower: clickPower, autoClickBPS: autoClickBPS,
-    prestigeMultiplier: prestigeMultiplier, epsteinTokens: epsteinTokens, clickUpgradeCost: clickUpgradeCost,
+    prestigeMultiplier: prestigeMultiplier, epsteinTokens: epsteinTokens, battlePassLevel: battlePassLevel, clickUpgradeCost: clickUpgradeCost,
     autoClickerCost: autoClickerCost, dryCost: dryCost,
     frozenCost: frozenCost, mysteryCost: mysteryCost,
     prestigeThreshold: prestigeThreshold,
     hasUpg1: hasUpgrade1, hasUpg2: hasUpgrade2, hasUpg3: hasUpgrade3, hasUpg4: hasUpgrade4,
-    hasPermanent1: hasPermanent1, hasPermanent2: hasPermanent2, hasPermanent3: hasPermanent3, hasPermanent4: hasPermanent4,
+    hasPermanent1: hasPermanent1, hasPermanent2: hasPermanent2, hasPermanent3: hasPermanent3, hasPermanent4: hasPermanent4, hasPermanent5: hasPermanent5,
     permanentClickMultiplier: permanentClickMultiplier, permanentBpsMultiplier: permanentBpsMultiplier, permanentPrestigeMultiplier: permanentPrestigeMultiplier
   };
   localStorage.setItem("IlGiroSave", JSON.stringify(gameSave));
@@ -98,10 +100,12 @@ function loadGame() {
     if (typeof savedGame.mysteryCost !== "undefined") mysteryCost = savedGame.mysteryCost;
     if (typeof savedGame.prestigeThreshold !== "undefined") prestigeThreshold = savedGame.prestigeThreshold;
     if (typeof savedGame.epsteinTokens !== "undefined") epsteinTokens = savedGame.epsteinTokens;
+    if (typeof savedGame.battlePassLevel !== "undefined") battlePassLevel = savedGame.battlePassLevel;
     if (typeof savedGame.hasPermanent1 !== "undefined") hasPermanent1 = savedGame.hasPermanent1;
     if (typeof savedGame.hasPermanent2 !== "undefined") hasPermanent2 = savedGame.hasPermanent2;
     if (typeof savedGame.hasPermanent3 !== "undefined") hasPermanent3 = savedGame.hasPermanent3;
     if (typeof savedGame.hasPermanent4 !== "undefined") hasPermanent4 = savedGame.hasPermanent4;
+    if (typeof savedGame.hasPermanent5 !== "undefined") hasPermanent5 = savedGame.hasPermanent5;
     if (typeof savedGame.permanentClickMultiplier !== "undefined") permanentClickMultiplier = savedGame.permanentClickMultiplier;
     if (typeof savedGame.permanentBpsMultiplier !== "undefined") permanentBpsMultiplier = savedGame.permanentBpsMultiplier;
     if (typeof savedGame.permanentPrestigeMultiplier !== "undefined") permanentPrestigeMultiplier = savedGame.permanentPrestigeMultiplier;
@@ -178,12 +182,17 @@ function buyPermanentUpgrade(id, tokenCost) {
   if (id === 3 && !hasPermanent3) {
     epsteinTokens -= tokenCost;
     hasPermanent3 = true;
-    permanentPrestigeMultiplier *= 3; // x3 prestige
+    permanentPrestigeMultiplier *= 1.5; // x1.5 prestige
   }
   if (id === 4 && !hasPermanent4) {
     epsteinTokens -= tokenCost;
     hasPermanent4 = true;
     permanentBpsMultiplier *= 3; // x3 bps
+  }
+  if (id === 5 && !hasPermanent5) {
+    epsteinTokens -= tokenCost;
+    hasPermanent5 = true;
+    // Token per second will be handled in setInterval
   }
 
   updateDisplay();
@@ -268,7 +277,7 @@ function doPrestige() {
   if (score >= prestigeThreshold) {
     prestigeMultiplier += 1;
     epsteinTokens += 1;
-    prestigeThreshold = Math.floor(prestigeThreshold * 3);
+    prestigeThreshold = Math.floor(prestigeThreshold * 1.5);
     score = 0; clickPower = 1; autoClickBPS = 0;
     clickUpgradeCost = 10; autoClickerCost = 50; dryCost = 500; frozenCost = 1500; mysteryCost = 1000;
 
@@ -282,8 +291,8 @@ function doPrestige() {
 function updateDisplay() {
   scoreDisplay.textContent = Math.floor(score);
 
-  effClickPowerDisplay.textContent = getEffClick();
-  effBpsDisplay.textContent = getEffBps();
+  effClickPowerDisplay.textContent = Math.floor(getEffClick());
+  effBpsDisplay.textContent = Math.floor(getEffBps());
 
   document.getElementById('click-cost').textContent = clickUpgradeCost;
   document.getElementById('auto-cost').textContent = autoClickerCost;
@@ -332,17 +341,120 @@ function updateDisplay() {
 
   setPermanentBtnState(document.getElementById('btn-perm1'), hasPermanent1, 5, "Click x3");
   setPermanentBtnState(document.getElementById('btn-perm2'), hasPermanent2, 10, "BPS x3");
-  setPermanentBtnState(document.getElementById('btn-perm3'), hasPermanent3, 15, "Prestigio x3");
+  setPermanentBtnState(document.getElementById('btn-perm3'), hasPermanent3, 15, "Prestigio x1.5");
   setPermanentBtnState(document.getElementById('btn-perm4'), hasPermanent4, 25, "BPS x3");
+  setPermanentBtnState(document.getElementById('btn-perm5'), hasPermanent5, 30, "Token/s");
+}
+
+function upgradeBattlePass() {
+  let cost = Math.ceil(5 * Math.pow(1.5, battlePassLevel));
+  if (epsteinTokens >= cost && battlePassLevel < 30) {
+    epsteinTokens -= cost;
+    battlePassLevel++;
+    // Apply reward
+    if (battlePassLevel === 1) clickPower += 10;
+    else if (battlePassLevel === 2) autoClickBPS += 5;
+    else if (battlePassLevel === 3) permanentClickMultiplier *= 1.1;
+    else if (battlePassLevel === 4) permanentBpsMultiplier *= 1.1;
+    else if (battlePassLevel === 5) prestigeMultiplier *= 1.5;
+    else if (battlePassLevel === 6) clickPower += 20;
+    else if (battlePassLevel === 7) autoClickBPS += 10;
+    else if (battlePassLevel === 8) permanentClickMultiplier *= 1.2;
+    else if (battlePassLevel === 9) permanentBpsMultiplier *= 1.2;
+    else if (battlePassLevel === 10) prestigeMultiplier *= 1.5;
+    else if (battlePassLevel === 11) clickPower += 50;
+    else if (battlePassLevel === 12) autoClickBPS += 25;
+    else if (battlePassLevel === 13) permanentClickMultiplier *= 1.5;
+    else if (battlePassLevel === 14) permanentBpsMultiplier *= 1.5;
+    else if (battlePassLevel === 15) prestigeMultiplier *= 1.5;
+    else if (battlePassLevel === 16) clickPower += 100;
+    else if (battlePassLevel === 17) autoClickBPS += 50;
+    else if (battlePassLevel === 18) permanentClickMultiplier *= 2.0;
+    else if (battlePassLevel === 19) permanentBpsMultiplier *= 2.0;
+    else if (battlePassLevel === 20) prestigeMultiplier *= 1.5;
+    else if (battlePassLevel === 21) clickPower += 200;
+    else if (battlePassLevel === 22) autoClickBPS += 100;
+    else if (battlePassLevel === 23) permanentClickMultiplier *= 3.0;
+    else if (battlePassLevel === 24) permanentBpsMultiplier *= 3.0;
+    else if (battlePassLevel === 25) prestigeMultiplier *= 1.5;
+    else if (battlePassLevel === 26) clickPower += 500;
+    else if (battlePassLevel === 27) autoClickBPS += 250;
+    else if (battlePassLevel === 28) permanentClickMultiplier *= 5.0;
+    else if (battlePassLevel === 29) permanentBpsMultiplier *= 5.0;
+    else if (battlePassLevel === 30) prestigeMultiplier *= 1.5;
+    updateBattlePassDisplay();
+    updateDisplay();
+    saveGame();
+  }
+}
+
+function updateBattlePassDisplay() {
+  document.getElementById('bp-level').textContent = battlePassLevel;
+  document.getElementById('bp-next-cost').textContent = battlePassLevel >= 30 ? 'Max' : Math.ceil(5 * Math.pow(1.5, battlePassLevel));
+  let list = document.getElementById('bp-rewards-list');
+  list.innerHTML = '';
+  let rewards = [
+    "Click Base +10",
+    "BPS Base +5",
+    "Moltiplicatore Click Permanente x1.1",
+    "Moltiplicatore BPS Permanente x1.1",
+    "Moltiplicatore Prestigio x1.5",
+    "Click Base +20",
+    "BPS Base +10",
+    "Moltiplicatore Click Permanente x1.2",
+    "Moltiplicatore BPS Permanente x1.2",
+    "Moltiplicatore Prestigio x1.5",
+    "Click Base +50",
+    "BPS Base +25",
+    "Moltiplicatore Click Permanente x1.5",
+    "Moltiplicatore BPS Permanente x1.5",
+    "Moltiplicatore Prestigio x1.5",
+    "Click Base +100",
+    "BPS Base +50",
+    "Moltiplicatore Click Permanente x2.0",
+    "Moltiplicatore BPS Permanente x2.0",
+    "Moltiplicatore Prestigio x1.5",
+    "Click Base +200",
+    "BPS Base +100",
+    "Moltiplicatore Click Permanente x3.0",
+    "Moltiplicatore BPS Permanente x3.0",
+    "Moltiplicatore Prestigio x1.5",
+    "Click Base +500",
+    "BPS Base +250",
+    "Moltiplicatore Click Permanente x5.0",
+    "Moltiplicatore BPS Permanente x5.0",
+    "Moltiplicatore Prestigio x1.5"
+  ];
+  for (let i = 1; i <= battlePassLevel && i <= rewards.length; i++) {
+    let li = document.createElement('li');
+    li.textContent = `Livello ${i}: ${rewards[i-1]}`;
+    list.appendChild(li);
+  }
+  let btn = document.getElementById('btn-upgrade-bp');
+  if (battlePassLevel >= 30) {
+    btn.disabled = true;
+    btn.textContent = 'Max Livello Raggiunto';
+  } else {
+    btn.disabled = false;
+    btn.textContent = 'Sblocca Livello';
+  }
 }
 
 // INIZIALIZZAZIONE
 loadGame();
 updateDisplay();
+updateBattlePassDisplay();
 
 setInterval(function() {
   if (autoClickBPS > 0) {
     score += getEffBps();
+    updateDisplay();
+  }
+}, 1000);
+
+setInterval(function() {
+  if (hasPermanent5) {
+    epsteinTokens += 1;
     updateDisplay();
   }
 }, 1000);

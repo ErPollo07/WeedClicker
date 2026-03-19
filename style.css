@@ -103,3 +103,8 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; color: #888; }
 #btn-reset:hover { background-color: #b71c1c; }
 
 #save-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.5s; pointer-events: none; z-index: 1000; }
+
+.battlepass-progress { margin-bottom: 20px; }
+.battlepass-rewards { text-align: left; width: 100%; }
+.battlepass-rewards ul { list-style: none; padding: 0; }
+.battlepass-rewards li { background: #f0f0f0; margin: 5px 0; padding: 8px; border-radius: 5px; }
