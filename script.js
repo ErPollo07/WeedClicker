@@ -893,3 +893,401 @@ setInterval(function() {
   generateNextBtcPrice();
   updateBtcDisplay();
 }, 2000);
+
+// ===================== AVIATOR =====================
+(function() {
+  // State
+  let avBet = 0.01;
+  let avPhase = 'waiting'; // 'waiting' | 'flying' | 'crashed'
+  let avMult = 1.0;
+  let avCrashAt = 1.0;
+  let avHasBet = false;
+  let avCashedOut = false;
+  let avCashedMult = 0;
+  let avTotalWon = 0;
+  let avTotalLost = 0;
+  let avHistory = [];
+  let avFlyInterval = null;
+  let avCdInterval = null;
+  let avTrail = [];
+  let avProgress = 0;
+  let avAnimFrame = null;
+  let avCanvas = null, avCtx = null;
+  let avStars = [];
+  let avInitialized = false;
+
+  function avInit() {
+    if (avInitialized) return;
+    avCanvas = document.getElementById('av-sky');
+    if (!avCanvas) return;
+    avInitialized = true;
+    avCtx = avCanvas.getContext('2d');
+    avResizeCanvas();
+    avInitStars();
+    avDrawLoop();
+    avStartCountdown();
+  }
+
+  function avResizeCanvas() {
+    if (!avCanvas) return;
+    const area = document.getElementById('av-game-area');
+    if (!area) return;
+    avCanvas.width  = area.clientWidth;
+    avCanvas.height = area.clientHeight;
+    avCanvas.style.width  = '100%';
+    avCanvas.style.height = '100%';
+  }
+
+  function avInitStars() {
+    avStars = [];
+    const W = avCanvas.width || 380, H = avCanvas.height || 200;
+    for (let i = 0; i < 60; i++) {
+      avStars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.1+0.3, a: Math.random()*0.6 });
+    }
+  }
+
+  function avGenerateCrash() {
+    const r = Math.random();
+    if (r < 0.01) return 1.0 + Math.random() * 0.05;
+    const e = 0.99 / (1 - r);
+    return Math.max(1.01, parseFloat(e.toFixed(2)));
+  }
+
+  function avGetPlanePos(t) {
+    const W = avCanvas.width || 380, H = avCanvas.height || 200;
+    const m = 28;
+    return {
+      x: m + (W - m*2) * t,
+      y: H - m - (H - m*2) * Math.pow(t, 0.68)
+    };
+  }
+
+  function avDrawLoop() {
+    const W = avCanvas.width || 380, H = avCanvas.height || 200;
+    const ctx = avCtx;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#04040c'); bg.addColorStop(1,'#0d0d1a');
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+    // Stars
+    avStars.forEach(s => {
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${s.a})`; ctx.fill();
+    });
+
+    // Grid
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+    for(let i=1;i<4;i++){
+      ctx.beginPath();ctx.moveTo(0,H*i/4);ctx.lineTo(W,H*i/4);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(W*i/4,0);ctx.lineTo(W*i/4,H);ctx.stroke();
+    }
+
+    if ((avPhase==='flying'||avPhase==='crashed') && avTrail.length > 1) {
+      // Trail line
+      ctx.beginPath();
+      ctx.moveTo(avTrail[0].x, avTrail[0].y);
+      for(let i=1;i<avTrail.length;i++) ctx.lineTo(avTrail[i].x,avTrail[i].y);
+      const g = ctx.createLinearGradient(avTrail[0].x,avTrail[0].y,avTrail[avTrail.length-1].x,avTrail[avTrail.length-1].y);
+      const col = avPhase==='crashed' ? '230,57,70' : '0,230,118';
+      g.addColorStop(0,`rgba(${col},0)`); g.addColorStop(1,`rgba(${col},0.8)`);
+      ctx.strokeStyle=g; ctx.lineWidth=2.5; ctx.stroke();
+
+      // Fill under trail
+      ctx.beginPath();
+      ctx.moveTo(avTrail[0].x,avTrail[0].y);
+      for(let i=1;i<avTrail.length;i++) ctx.lineTo(avTrail[i].x,avTrail[i].y);
+      ctx.lineTo(avTrail[avTrail.length-1].x,H);
+      ctx.lineTo(avTrail[0].x,H); ctx.closePath();
+      const fg = ctx.createLinearGradient(0,0,0,H);
+      fg.addColorStop(0,`rgba(${col},0.07)`); fg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=fg; ctx.fill();
+
+      // Plane
+      const pp = avTrail[avTrail.length-1];
+      ctx.save(); ctx.translate(pp.x,pp.y);
+      if(avPhase==='crashed') { ctx.font='26px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('💥',0,0); }
+      else { ctx.rotate(-0.2); ctx.font='24px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('✈️',0,0); }
+      ctx.restore();
+    }
+
+    avAnimFrame = requestAnimationFrame(avDrawLoop);
+  }
+
+  function avStartCountdown() {
+    avPhase = 'waiting';
+    avMult = 1.0;
+    avTrail = [];
+    avCashedOut = false;
+    avProgress = 0;
+    avCrashAt = avGenerateCrash();
+
+    const overlay = document.getElementById('av-countdown');
+    const num = document.getElementById('av-cdnum');
+    if (overlay) overlay.style.display = 'flex';
+    let cd = 3;
+    if (num) num.textContent = cd;
+    avSetBtn('waiting');
+    avUpdateMult();
+
+    clearInterval(avCdInterval);
+    avCdInterval = setInterval(() => {
+      cd--;
+      if (cd <= 0) {
+        clearInterval(avCdInterval);
+        if (overlay) overlay.style.display = 'none';
+        avStartFlight();
+      } else {
+        if (num) num.textContent = cd;
+      }
+    }, 1000);
+  }
+
+  function avStartFlight() {
+    avPhase = 'flying';
+    avMult = 1.0;
+    avProgress = 0;
+    avTrail = [];
+    avSetBtn('flying');
+    const st = document.getElementById('av-status');
+    if(st) st.textContent = 'IN VOLO...';
+
+    const autoVal = parseFloat(document.getElementById('av-auto')?.value);
+
+    clearInterval(avFlyInterval);
+    avFlyInterval = setInterval(() => {
+      avProgress = Math.min(avProgress + 0.005, 1);
+      avMult += avMult * 0.02 + 0.002;
+      avMult = parseFloat(avMult.toFixed(2));
+
+      const pos = avGetPlanePos(avProgress);
+      avTrail.push(pos);
+      if(avTrail.length > 90) avTrail.shift();
+
+      avUpdateMult();
+
+      if (!avCashedOut && avHasBet && !isNaN(autoVal) && autoVal >= 1.1 && avMult >= autoVal) {
+        avDoCashout();
+      }
+
+      if (avMult >= avCrashAt) avDoCrash();
+    }, 50);
+  }
+
+  function avDoCrash() {
+    clearInterval(avFlyInterval);
+    avPhase = 'crashed';
+    avUpdateMult();
+    avSetBtn('crashed');
+    const st = document.getElementById('av-status');
+    if(st) st.textContent = `CRASHED @ ${avCrashAt.toFixed(2)}x`;
+
+    if (avHasBet && !avCashedOut) {
+      avTotalLost += avBet;
+      avShowToast(`-${avBet.toFixed(3)} ₿ 💀`, true);
+    }
+    avAddHistory(avCrashAt);
+    avHasBet = false;
+    avUpdateStats();
+    setTimeout(avStartCountdown, 2500);
+  }
+
+  function avDoCashout() {
+    if (!avHasBet || avCashedOut || avPhase !== 'flying') return;
+    avCashedOut = true;
+    avCashedMult = avMult;
+    const winTotal = parseFloat((avBet * avMult).toFixed(4));
+    btcBalance += winTotal;  // restituisce tutta la vincita (bet già sottratta al momento della scommessa)
+    avTotalWon += winTotal;
+    avShowToast(`+${(winTotal - avBet).toFixed(3)} ₿ @ ${avCashedMult.toFixed(2)}x 🤑`, false);
+    document.getElementById('av-mult').classList.add('av-cashed');
+    avUpdateStats();
+    avSetBtn('cashed');
+    updateBtcDisplay();
+    updateDisplay();
+  }
+
+  function avPlaceBet() {
+    if (avBet <= 0 || avBet > btcBalance) {
+      avShowToast('BTC insufficienti!', true); return;
+    }
+    btcBalance -= avBet;
+    avHasBet = true;
+    avCashedOut = false;
+    avUpdateStats();
+    updateBtcDisplay();
+    updateDisplay();
+  }
+
+  function avHandleBtn() {
+    if (avPhase === 'flying' && avHasBet && !avCashedOut) {
+      avDoCashout();
+    } else if (avPhase === 'waiting' && !avHasBet) {
+      avPlaceBet();
+      avSetBtn('betplaced');
+    }
+  }
+  window.avHandleBtn = avHandleBtn;
+
+  function avSetBtn(state) {
+    const btn = document.getElementById('av-btn-main');
+    if (!btn) return;
+    btn.className = '';
+    btn.disabled = false;
+    btn.style.cursor = 'pointer';
+    btn.style.opacity = '1';
+    switch(state) {
+      case 'waiting':
+        btn.textContent = 'SCOMMETTI';
+        btn.style.background = '#00e676'; btn.style.color = '#000';
+        break;
+      case 'betplaced':
+        btn.textContent = '⏳ SCOMMESSA PIAZZATA';
+        btn.style.background = '#333'; btn.style.color = '#888';
+        btn.disabled = true;
+        break;
+      case 'flying':
+        if (avHasBet && !avCashedOut) {
+          btn.textContent = `💰 INCASSA (${avMult.toFixed(2)}x)`;
+          btn.style.background = '#f9a825'; btn.style.color = '#000';
+          btn.classList.add('av-cashout');
+        } else if (!avHasBet) {
+          btn.textContent = 'SCOMMETTI';
+          btn.style.background = '#00e676'; btn.style.color = '#000';
+        } else {
+          btn.textContent = `✅ INCASSATO @ ${avCashedMult.toFixed(2)}x`;
+          btn.style.background = '#333'; btn.style.color = '#888';
+          btn.disabled = true;
+        }
+        break;
+      case 'cashed':
+        btn.textContent = `✅ INCASSATO @ ${avCashedMult.toFixed(2)}x`;
+        btn.style.background = '#333'; btn.style.color = '#888';
+        btn.disabled = true;
+        break;
+      case 'crashed':
+        btn.textContent = '💥 CRASHED';
+        btn.style.background = '#e63946'; btn.style.color = '#fff';
+        btn.disabled = true;
+        break;
+    }
+  }
+
+  function avUpdateMult() {
+    const el = document.getElementById('av-mult');
+    if (!el) return;
+    el.classList.remove('av-crashed','av-cashed');
+    if (avPhase === 'crashed') {
+      el.textContent = `${avCrashAt.toFixed(2)}x`;
+      el.style.color = '#e63946';
+      el.style.textShadow = '0 0 24px rgba(230,57,70,0.8)';
+    } else {
+      el.textContent = `${avMult.toFixed(2)}x`;
+      if (avCashedOut) {
+        el.style.color = '#f9a825';
+        el.style.textShadow = '0 0 24px rgba(249,168,37,0.8)';
+      } else {
+        el.style.color = '#00e676';
+        el.style.textShadow = '0 0 24px rgba(0,230,118,0.7)';
+      }
+    }
+    // Live update cashout button text
+    if (avPhase === 'flying' && avHasBet && !avCashedOut) {
+      const btn = document.getElementById('av-btn-main');
+      if (btn && !btn.disabled) btn.textContent = `💰 INCASSA (${avMult.toFixed(2)}x)`;
+    }
+  }
+
+  function avUpdateStats() {
+    const b = document.getElementById('av-stat-btc');
+    const w = document.getElementById('av-stat-won');
+    const l = document.getElementById('av-stat-lost');
+    if(b) b.textContent = Math.max(0, btcBalance).toFixed(3);
+    if(w) w.textContent = avTotalWon.toFixed(3);
+    if(l) l.textContent = avTotalLost.toFixed(3);
+  }
+
+  function avAddHistory(val) {
+    avHistory.unshift(val);
+    if (avHistory.length > 15) avHistory.pop();
+    const bar = document.getElementById('av-history');
+    if (!bar) return;
+    bar.innerHTML = '';
+    avHistory.forEach(v => {
+      const c = document.createElement('div');
+      const cls = v < 1.5 ? 'av-hist-low' : v < 3 ? 'av-hist-mid' : v < 10 ? 'av-hist-high' : 'av-hist-epic';
+      c.className = cls;
+      c.style.cssText = 'flex-shrink:0;padding:3px 9px;border-radius:20px;font-size:11px;font-family:monospace;font-weight:700;';
+      c.textContent = v.toFixed(2) + 'x';
+      bar.appendChild(c);
+    });
+  }
+
+  let avToastTimer;
+  function avShowToast(msg, isLoss) {
+    const t = document.getElementById('av-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+    t.style.borderColor = isLoss ? '#e63946' : '#00e676';
+    t.style.color = isLoss ? '#e63946' : '#00e676';
+    clearTimeout(avToastTimer);
+    avToastTimer = setTimeout(() => { t.style.display = 'none'; }, 2200);
+  }
+
+  function avUpdateBetSlider() {
+    const slider = document.getElementById('av-slider');
+    if (!slider) return;
+    const pct = parseInt(slider.value);
+    avBet = Math.max(0.001, parseFloat((btcBalance * pct / 100).toFixed(3)));
+    const d = document.getElementById('av-bet-display');
+    if(d) d.textContent = avBet.toFixed(3) + ' ₿';
+  }
+  window.avUpdateBetSlider = avUpdateBetSlider;
+
+  function avQuickBet(f) {
+    avBet = f === 1 ? parseFloat(btcBalance.toFixed(3)) : Math.max(0.001, parseFloat((btcBalance * f).toFixed(3)));
+    const pct = btcBalance > 0 ? Math.round(avBet / btcBalance * 100) : 0;
+    const slider = document.getElementById('av-slider');
+    if(slider) slider.value = pct;
+    const d = document.getElementById('av-bet-display');
+    if(d) d.textContent = avBet.toFixed(3) + ' ₿';
+  }
+  window.avQuickBet = avQuickBet;
+
+  function avSetBet(val) {
+    avBet = val;
+    const pct = btcBalance > 0 ? Math.round(avBet / btcBalance * 100) : 0;
+    const slider = document.getElementById('av-slider');
+    if(slider) slider.value = pct;
+    const d = document.getElementById('av-bet-display');
+    if(d) d.textContent = avBet.toFixed(3) + ' ₿';
+  }
+  window.avSetBet = avSetBet;
+
+  // Hook into switchPage to init canvas when tab is opened
+  const _origSwitch = window.switchPage;
+  window.switchPage = function(pageName) {
+    _origSwitch(pageName);
+    if (pageName === 'aviator') {
+      setTimeout(() => {
+        avCanvas = document.getElementById('av-sky');
+        if (!avCanvas) return;
+        avCtx = avCanvas.getContext('2d');
+        avResizeCanvas();
+        avInitStars();
+        if (!avInitialized) {
+          avInitialized = true;
+          avDrawLoop();
+          avStartCountdown();
+        }
+        avUpdateStats();
+      }, 80);
+    }
+  };
+
+  // Expose init for nav
+  window.avInit = avInit;
+})();

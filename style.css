@@ -129,3 +129,15 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; color: #888; }
 .btc-chart-container { width: 100%; background: #111; border-radius: 10px; padding: 8px; box-sizing: border-box; margin-bottom: 10px; }
 #btc-chart { display: block; width: 100%; border-radius: 6px; }
 #btn-sell-btc:hover:not(:disabled) { background-color: #e67e22 !important; }
+
+/* AVIATOR */
+#av-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#f9a825; cursor:pointer; }
+#av-slider::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#f9a825; cursor:pointer; border:none; }
+#av-mult.av-crashed { color:#e63946 !important; text-shadow:0 0 24px rgba(230,57,70,0.8) !important; }
+#av-mult.av-cashed  { color:#f9a825 !important; text-shadow:0 0 24px rgba(249,168,37,0.8) !important; }
+#av-btn-main.av-cashout { background:#f9a825 !important; color:#000 !important; }
+#av-btn-main.av-crashed-btn { background:#e63946 !important; color:#fff !important; cursor:not-allowed !important; }
+.av-hist-low  { background:rgba(230,57,70,0.2);  color:#e63946; border:1px solid #e63946; }
+.av-hist-mid  { background:rgba(41,182,246,0.2); color:#29b6f6; border:1px solid #29b6f6; }
+.av-hist-high { background:rgba(0,230,118,0.2);  color:#00e676; border:1px solid #00e676; }
+.av-hist-epic { background:rgba(249,168,37,0.2); color:#f9a825; border:1px solid #f9a825; }

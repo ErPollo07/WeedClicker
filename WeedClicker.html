@@ -26,6 +26,7 @@
     <button id="nav-battlepass" class="nav-btn" onclick="switchPage('battlepass')">Battle Pass</button>
     <button id="nav-blackjack" class="nav-btn" onclick="switchPage('blackjack')">🃏 Blackjack</button>
     <button id="nav-bitcoin" class="nav-btn" onclick="switchPage('bitcoin')">₿ Bitcoin</button>
+    <button id="nav-aviator" class="nav-btn" onclick="switchPage('aviator')">✈️ Aviator</button>
 </div>
 
 <div id="game-container">
@@ -214,6 +215,66 @@
                 💸 Vendi tutti i BTC → <span id="btc-sell-preview">0.000</span> Token
             </button>
         </div>
+    </div>
+
+    <!-- AVIATOR PAGE -->
+    <div id="page-aviator" class="page">
+        <h2>✈️ Aviator</h2>
+        <div class="info-box">
+            Scommetti i tuoi Bitcoin! Il moltiplicatore sale finché l'aereo non crasha. Incassa prima che esploda!
+        </div>
+
+        <!-- History bar -->
+        <div id="av-history" style="display:flex;gap:6px;overflow-x:auto;width:100%;padding:4px 0;scrollbar-width:none;margin-bottom:10px;"></div>
+
+        <!-- Sky canvas -->
+        <div id="av-game-area" style="position:relative;width:100%;height:200px;background:#0a0a12;border-radius:12px;overflow:hidden;margin-bottom:12px;">
+            <canvas id="av-sky"></canvas>
+            <div id="av-mult" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);font-family:monospace;font-size:48px;font-weight:900;color:#00e676;text-shadow:0 0 24px rgba(0,230,118,0.7);pointer-events:none;letter-spacing:2px;">1.00x</div>
+            <div id="av-status" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:12px;color:#666;pointer-events:none;white-space:nowrap;">IN ATTESA...</div>
+            <div id="av-countdown" style="position:absolute;inset:0;background:rgba(10,10,18,0.85);display:flex;align-items:center;justify-content:center;border-radius:12px;z-index:10;">
+                <div id="av-cdnum" style="font-family:monospace;font-size:64px;font-weight:900;color:#f9a825;text-shadow:0 0 30px rgba(249,168,37,0.8);">3</div>
+            </div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:flex;gap:8px;width:100%;margin-bottom:12px;">
+            <div style="flex:1;background:#1a1a2e;border-radius:8px;padding:10px;text-align:center;">
+                <div id="av-stat-btc" style="font-family:monospace;font-size:16px;font-weight:700;color:#f9a825;">0.000</div>
+                <div style="font-size:10px;color:#666;">BTC TOTALI</div>
+            </div>
+            <div style="flex:1;background:#1a1a2e;border-radius:8px;padding:10px;text-align:center;">
+                <div id="av-stat-won" style="font-family:monospace;font-size:16px;font-weight:700;color:#00e676;">0.000</div>
+                <div style="font-size:10px;color:#666;">VINTI ₿</div>
+            </div>
+            <div style="flex:1;background:#1a1a2e;border-radius:8px;padding:10px;text-align:center;">
+                <div id="av-stat-lost" style="font-family:monospace;font-size:16px;font-weight:700;color:#e63946;">0.000</div>
+                <div style="font-size:10px;color:#666;">PERSI ₿</div>
+            </div>
+        </div>
+
+        <!-- Bet controls -->
+        <div style="background:#1a1a2e;border-radius:12px;padding:14px;width:100%;box-sizing:border-box;">
+            <div style="font-size:11px;color:#666;letter-spacing:2px;margin-bottom:8px;">SCOMMESSA (BITCOIN)</div>
+            <div style="display:flex;align-items:center;gap:10px;background:#0a0a12;border-radius:8px;padding:10px;margin-bottom:8px;">
+                <input type="range" id="av-slider" min="1" max="100" value="10" step="1" oninput="avUpdateBetSlider()" style="-webkit-appearance:none;flex:1;height:4px;border-radius:2px;background:#333;outline:none;">
+                <span id="av-bet-display" style="font-family:monospace;font-size:15px;font-weight:700;color:#f9a825;min-width:80px;text-align:right;">0.010 ₿</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:10px;">
+                <button onclick="avQuickBet(0.25)" style="flex:1;background:#0a0a12;color:#888;border:1px solid #333;padding:6px;border-radius:6px;font-size:11px;width:auto;margin:0;">x0.25</button>
+                <button onclick="avQuickBet(0.5)"  style="flex:1;background:#0a0a12;color:#888;border:1px solid #333;padding:6px;border-radius:6px;font-size:11px;width:auto;margin:0;">x0.5</button>
+                <button onclick="avQuickBet(1)"    style="flex:1;background:#0a0a12;color:#888;border:1px solid #333;padding:6px;border-radius:6px;font-size:11px;width:auto;margin:0;">ALL IN</button>
+                <button onclick="avSetBet(0.001)"  style="flex:1;background:#0a0a12;color:#888;border:1px solid #333;padding:6px;border-radius:6px;font-size:11px;width:auto;margin:0;">MIN</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0a0a12;border-radius:8px;padding:10px;margin-bottom:10px;">
+                <span style="flex:1;font-size:12px;color:#666;">Auto cash-out a:</span>
+                <input type="number" id="av-auto" min="1.1" step="0.1" placeholder="—" style="background:transparent;border:none;color:#29b6f6;font-family:monospace;font-size:15px;font-weight:700;width:70px;outline:none;text-align:right;">
+                <span style="color:#666;font-size:13px;">x</span>
+            </div>
+            <button id="av-btn-main" onclick="avHandleBtn()" style="background:#00e676;color:#000;font-family:monospace;font-size:17px;font-weight:900;letter-spacing:2px;border:none;border-radius:10px;padding:14px;width:100%;cursor:pointer;">SCOMMETTI</button>
+        </div>
+
+        <div id="av-toast" style="display:none;background:#1a1a2e;border:2px solid #00e676;border-radius:10px;padding:10px 20px;font-family:monospace;font-size:15px;font-weight:700;color:#00e676;margin-top:10px;text-align:center;"></div>
     </div>
 
 </div>
