@@ -21,6 +21,7 @@
     <button id="nav-permanent" class="nav-btn" onclick="switchPage('permanent')">L'isola</button>
     <button id="nav-casino" class="nav-btn" onclick="switchPage('casino')">🎡 Crazy Time!</button>
     <button id="nav-battlepass" class="nav-btn" onclick="switchPage('battlepass')">Battle Pass</button>
+    <button id="nav-blackjack" class="nav-btn" onclick="switchPage('blackjack')">🃏 Blackjack</button>
 </div>
 
 <div id="game-container">
@@ -126,6 +127,33 @@
         <div class="battlepass-rewards">
             <h3>Ricompense Sbloccate:</h3>
             <ul id="bp-rewards-list"></ul>
+        </div>
+    </div>
+
+    <div id="page-blackjack" class="page">
+        <h2>🃏 Blackjack</h2>
+        <div class="info-box">
+            Scommetti i tuoi Epstein Tokens!
+        </div>
+        <div class="blackjack-tokens">Token: <span id="bj-tokens">0</span></div>
+        <div class="blackjack-bet">
+            <label>Scommessa: <input type="number" id="bj-bet-amount" min="1" value="1"></label>
+            <button id="btn-start-bj" onclick="startBlackjack()">Nuova Partita</button>
+        </div>
+        <div class="blackjack-game">
+            <div class="dealer">
+                <h3>Dealer: <span id="dealer-score">0</span></h3>
+                <div id="dealer-cards" class="cards"></div>
+            </div>
+            <div class="player">
+                <h3>Tu: <span id="player-score">0</span></h3>
+                <div id="player-cards" class="cards"></div>
+            </div>
+            <div class="blackjack-controls">
+                <button id="btn-hit" onclick="hit()" disabled>Carta</button>
+                <button id="btn-stand" onclick="stand()" disabled>Stai</button>
+            </div>
+            <div id="bj-result" class="bj-result"></div>
         </div>
     </div>
 

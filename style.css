@@ -109,3 +109,13 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; color: #888; }
 .battlepass-rewards { text-align: left; width: 100%; }
 .battlepass-rewards ul { list-style: none; padding: 0; }
 .battlepass-rewards li { background: #f0f0f0; margin: 5px 0; padding: 8px; border-radius: 5px; }
+
+.blackjack-tokens { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+.blackjack-bet { margin-bottom: 20px; }
+.blackjack-bet input { width: 80px; padding: 5px; margin-right: 10px; }
+.blackjack-game { display: flex; flex-direction: column; align-items: center; }
+.dealer, .player { margin: 10px 0; }
+.cards { display: flex; gap: 5px; }
+.card { background: white; border: 1px solid #333; border-radius: 5px; padding: 10px; font-size: 16px; font-weight: bold; }
+.blackjack-controls { margin: 10px 0; }
+.bj-result { margin-top: 10px; font-size: 16px; font-weight: bold; color: #4CAF50; }

@@ -6,6 +6,12 @@ let prestigeMultiplier = 1;
 let epsteinTokens = 0;
 let battlePassLevel = 0;
 
+// Blackjack variables
+let bjPlayerCards = [];
+let bjDealerCards = [];
+let bjBet = 0;
+let bjGameInProgress = false;
+
 let clickUpgradeCost = 10;
 let autoClickerCost = 50;
 let dryCost = 500;
@@ -288,6 +294,124 @@ function doPrestige() {
   }
 }
 
+function createDeck() {
+  const suits = ['♥', '♦', '♣', '♠'];
+  const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  let deck = [];
+  for (let suit of suits) {
+    for (let value of values) {
+      deck.push({ suit, value });
+    }
+  }
+  return deck.sort(() => Math.random() - 0.5);
+}
+
+function getCardValue(card) {
+  if (card.value === 'A') return 11;
+  if (['J', 'Q', 'K'].includes(card.value)) return 10;
+  return parseInt(card.value);
+}
+
+function calculateScore(cards) {
+  let score = 0;
+  let aces = 0;
+  for (let card of cards) {
+    score += getCardValue(card);
+    if (card.value === 'A') aces++;
+  }
+  while (score > 21 && aces > 0) {
+    score -= 10;
+    aces--;
+  }
+  return score;
+}
+
+function renderCards(cards, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let card of cards) {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    cardEl.textContent = card.value + card.suit;
+    container.appendChild(cardEl);
+  }
+}
+
+function startBlackjack() {
+  const betAmount = parseInt(document.getElementById('bj-bet-amount').value);
+  if (isNaN(betAmount) || betAmount < 1 || betAmount > epsteinTokens) {
+    alert('Scommessa non valida!');
+    return;
+  }
+  bjBet = betAmount;
+  epsteinTokens -= bjBet;
+  bjGameInProgress = true;
+  bjPlayerCards = [];
+  bjDealerCards = [];
+  let deck = createDeck();
+  bjPlayerCards.push(deck.pop());
+  bjDealerCards.push(deck.pop());
+  bjPlayerCards.push(deck.pop());
+  bjDealerCards.push(deck.pop());
+  renderCards(bjPlayerCards, 'player-cards');
+  renderCards([bjDealerCards[0], { suit: '?', value: '?' }], 'dealer-cards');
+  document.getElementById('player-score').textContent = calculateScore(bjPlayerCards);
+  document.getElementById('dealer-score').textContent = '?';
+  document.getElementById('btn-hit').disabled = false;
+  document.getElementById('btn-stand').disabled = false;
+  document.getElementById('btn-start-bj').disabled = true;
+  document.getElementById('bj-result').textContent = '';
+  updateDisplay();
+}
+
+function hit() {
+  if (!bjGameInProgress) return;
+  let deck = createDeck();
+  bjPlayerCards.push(deck.pop());
+  renderCards(bjPlayerCards, 'player-cards');
+  const score = calculateScore(bjPlayerCards);
+  document.getElementById('player-score').textContent = score;
+  if (score > 21) {
+    endGame('Hai perso! (Bust)');
+  }
+}
+
+function stand() {
+  if (!bjGameInProgress) return;
+  let deck = createDeck();
+  while (calculateScore(bjDealerCards) < 17) {
+    bjDealerCards.push(deck.pop());
+  }
+  renderCards(bjDealerCards, 'dealer-cards');
+  const playerScore = calculateScore(bjPlayerCards);
+  const dealerScore = calculateScore(bjDealerCards);
+  document.getElementById('dealer-score').textContent = dealerScore;
+  if (dealerScore > 21) {
+    endGame('Hai vinto! (Dealer bust)');
+  } else if (playerScore > dealerScore) {
+    endGame('Hai vinto!');
+  } else if (playerScore < dealerScore) {
+    endGame('Hai perso!');
+  } else {
+    endGame('Pareggio!');
+  }
+}
+
+function endGame(message) {
+  bjGameInProgress = false;
+  document.getElementById('btn-hit').disabled = true;
+  document.getElementById('btn-stand').disabled = true;
+  document.getElementById('btn-start-bj').disabled = false;
+  document.getElementById('bj-result').textContent = message;
+  if (message.includes('Hai vinto!')) {
+    epsteinTokens += bjBet * 2;
+  } else if (message.includes('Pareggio!')) {
+    epsteinTokens += bjBet;
+  }
+  // Lose: already subtracted
+  updateDisplay();
+}
+
 function updateDisplay() {
   scoreDisplay.textContent = Math.floor(score);
 
@@ -314,6 +438,7 @@ function updateDisplay() {
   mysteryCostDisplay.textContent = mysteryCost;
   prestigeDisplay.textContent = prestigeMultiplier;
   document.getElementById('epstein-token-display').textContent = epsteinTokens;
+  document.getElementById('bj-tokens').textContent = epsteinTokens;
   prestigeCostDisplay.textContent = prestigeThreshold;
 
   document.getElementById('btn-click-upgrade').disabled = score < clickUpgradeCost || isSpinning;
