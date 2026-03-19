@@ -1,6 +1,6 @@
 // --- VARIABILI DEL GIOCO ---
 let score = 0;
-let clickPower = 1;
+let clickPower = 100000;
 let autoClickBPS = 0;
 let prestigeMultiplier = 1;
 let epsteinTokens = 0;
@@ -191,6 +191,7 @@ function buyPermanentUpgrade(id, tokenCost) {
 }
 
 function spinWheel() {
+  // Se sta già girando o non hai soldi, blocca il click
   if (isSpinning || score < mysteryCost) return;
 
   score -= mysteryCost;
@@ -206,83 +207,61 @@ function spinWheel() {
     return;
   }
 
-  let roll = Math.random();
+  let roll = Math.random(); 
   let targetAngle;
+  let resultCallback;
 
-  if (roll < 0.40) {
-    // Rosso: sfortuna (0-144°)
-    targetAngle = Math.floor(Math.random() * 140) + 2;
-  } else if (roll < 0.75) {
-    // Blu: triplica la robba (144-270°)
-    targetAngle = Math.floor(Math.random() * 120) + 150;
-  } else if (roll < 0.95) {
-    // Verde: +25 click (270-342°)
-    targetAngle = Math.floor(Math.random() * 60) + 280;
-  } else {
-    // Oro: jackpot +150 BPS (342-360°)
-    targetAngle = Math.floor(Math.random() * 16) + 344;
-  }
-
-  try {
-    let spins = 5;
-    let currentMod = (wheelRotation % 360 + 360) % 360; // 0..359
-    let targetMod = targetAngle;
-    let delta = ((targetMod - currentMod + 360) % 360) + (360 * spins);
-    wheelRotation += delta;
-
-    // Force layout and then animate
-    void wheelEl.offsetWidth;
-    wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
-
-    setTimeout(() => {
-      try {
-        const finalAngle = (wheelRotation % 360 + 360) % 360;
-        let resultMessage = "";
-        let resultClass = "";
-
-        if (finalAngle < 144) {
-          resultMessage = "Sfortuna! Niente, prova ancora.";
-          resultClass = "fail";
-          alert("Sfortuna! Hai perso la robba buona!😭 Stai attento agli sbirri!");
-        } else if (finalAngle < 270) {
-          let vincita = mysteryCost * 3;
-          resultMessage = `Vittoria! Ricevi ${vincita} grammi.`;
-          resultClass = "success";
+  // La ruota è un cerchio di 360 gradi. Calcoliamo in quale grado fermarla.
+  if (roll < 0.40) { 
+      // 40% probabilità -> Settore Rosso (Tra 0° e 144°)
+      targetAngle = Math.floor(Math.random() * 130) + 5; 
+      resultCallback = () => alert("Sfortuna! La ruota si è fermata sul rosso. Hai perso tutto perche i caramba sono cattivi! 😭");
+  } 
+  else if (roll < 0.75) { 
+      // 35% probabilità -> Settore Blu (Tra 144° e 270°)
+      targetAngle = Math.floor(Math.random() * 110) + 150;
+      let vincita = mysteryCost * 3;
+      resultCallback = () => {
           score += vincita;
           alert("Vittoria! Hai triplicato la robba spesa! (" + vincita + ")");
-        } else if (finalAngle < 342) {
-          resultMessage = "Crazy! +25 click base.";
-          resultClass = "warning";
+      };
+  } 
+  else if (roll < 0.95) { 
+      // 20% probabilità -> Settore Verde (Tra 270° e 342°)
+      targetAngle = Math.floor(Math.random() * 60) + 275;
+      resultCallback = () => {
           clickPower += 25;
           alert("Crazy! Base per click +25! 🧤");
-        } else {
-          resultMessage = "🎰 JACKPOT! +150 W/s!";
-          resultClass = "success";
+      };
+  } 
+  else { 
+      // 5% probabilità -> Settore Oro (Tra 342° e 360°)
+      targetAngle = Math.floor(Math.random() * 10) + 345;
+      resultCallback = () => {
           autoClickBPS += 150;
           alert("🎰 JACKPOT! Produzione Base +150 W/s! 🏭✨");
-        }
-
-        const wheelResultEl = document.getElementById('wheel-result');
-        if (wheelResultEl) {
-          wheelResultEl.textContent = resultMessage;
-          wheelResultEl.className = 'wheel-result ' + resultClass;
-        }
-
-        mysteryCost = Math.floor(mysteryCost * 1.2);
-      } catch (innerErr) {
-        console.error('Errore in resultCallback ruota:', innerErr);
-      } finally {
-        isSpinning = false;
-        updateDisplay();
-        saveGame();
-      }
-    }, 4000);
-  } catch (err) {
-    console.error('Errore durante spinWheel:', err);
-    isSpinning = false;
-    updateDisplay();
-    saveGame();
+      };
   }
+
+  // Calcolo della rotazione fisica: 
+  // Facciamo fare alla ruota 5 giri completi (360 * 5) + i gradi necessari per fermarsi al target
+  let spins = 5; 
+  let extraRotation = 360 - targetAngle;
+  let currentMod = wheelRotation % 360;
+  
+  wheelRotation += (360 * spins) + (extraRotation - currentMod);
+  
+  // Applica l'animazione CSS
+  wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
+
+  // Aspetta 4 secondi (la durata dell'animazione) prima di dare il premio e sbloccare tutto
+  setTimeout(() => {
+      resultCallback(); // Da il premio calcolato prima
+      mysteryCost = Math.floor(mysteryCost * 1.2); 
+      isSpinning = false;
+      updateDisplay();
+      saveGame();
+  }, 4000);
 }
 
 function doPrestige() {
