@@ -294,6 +294,19 @@ function updateDisplay() {
   effClickPowerDisplay.textContent = Math.floor(getEffClick());
   effBpsDisplay.textContent = Math.floor(getEffBps());
 
+  // Calcola moltiplicatori globali
+  let clickMult = 1;
+  if (hasUpgrade1) clickMult *= 2;
+  if (hasUpgrade3) clickMult *= 3;
+  clickMult *= prestigeMultiplier * permanentPrestigeMultiplier * permanentClickMultiplier;
+  document.getElementById('global-click-mult').textContent = clickMult.toFixed(2);
+
+  let bpsMult = 1;
+  if (hasUpgrade2) bpsMult *= 2;
+  if (hasUpgrade4) bpsMult *= 3;
+  bpsMult *= prestigeMultiplier * permanentPrestigeMultiplier * permanentBpsMultiplier;
+  document.getElementById('global-bps-mult').textContent = bpsMult.toFixed(2);
+
   document.getElementById('click-cost').textContent = clickUpgradeCost;
   document.getElementById('auto-cost').textContent = autoClickerCost;
   document.getElementById('dry-cost').textContent = dryCost;

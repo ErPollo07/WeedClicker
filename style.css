@@ -21,6 +21,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .score-board { font-size: 24px; font-weight: bold; color: #ffeb3b; margin-bottom: 5px; }
 .prestige-stats { font-size: 14px; color: #e0b0ff; font-weight: bold; }
+.global-mult { font-size: 14px; color: #4CAF50; font-weight: bold; }
 
 #nav-bar {
 display: flex;
