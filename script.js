@@ -28,6 +28,8 @@ let hasUpgrade5 = false; // Click x4
 let hasUpgrade6 = false; // BPS x4
 let hasUpgrade7 = false; // Click x5
 let hasUpgrade8 = false; // BPS x5
+let hasUpgrade9 = false; // Click x6
+let hasUpgrade10 = false; // BPS x6
 
 // Nuovi negozio base
 let spacciatoreCount = 0;
@@ -39,6 +41,18 @@ let piantagioneCurrentCost = 300000;
 let laboratorioCount = 0;
 let laboratorioBaseCost = 3000000;
 let laboratorioCurrentCost = 3000000;
+// Nuovi edifici
+let cartelCount = 0;
+let cartelBaseCost = 30_000_000;
+let cartelCurrentCost = 30_000_000;
+let narcosubCount = 0;
+let narcosubBaseCost = 350_000_000;
+let narcosubCurrentCost = 350_000_000;
+let chimicaCount = 0;
+let chimicaBaseCost = 5_000_000_000;
+let chimicaCurrentCost = 5_000_000_000;
+// Token prestige multiplier (raddoppia ad ogni prestige)
+let prestigeTokenMultiplier = 1;
 
 // Permanenti (non resettano al prestige)
 let hasPermanent1 = false;
@@ -114,6 +128,7 @@ function getEffClick() {
   if (hasUpgrade3) multiplier *= 3;
   if (hasUpgrade5) multiplier *= 4;
   if (hasUpgrade7) multiplier *= 5;
+  if (hasUpgrade9) multiplier *= 6;
   const effectivePrestige = prestigeMultiplier * permanentPrestigeMultiplier;
   return clickPower * multiplier * effectivePrestige * permanentClickMultiplier * auraBaseMultiplier * auraShop.clickBoost;
 }
@@ -124,6 +139,7 @@ function getEffBps() {
   if (hasUpgrade4) multiplier *= 3;
   if (hasUpgrade6) multiplier *= 4;
   if (hasUpgrade8) multiplier *= 5;
+  if (hasUpgrade10) multiplier *= 6;
   const effectivePrestige = prestigeMultiplier * permanentPrestigeMultiplier;
   return autoClickBPS * multiplier * effectivePrestige * permanentBpsMultiplier * auraBaseMultiplier * auraShop.bpsBoost;
 }
@@ -138,6 +154,7 @@ function saveGame() {
     prestigeThreshold: prestigeThreshold,
     hasUpg1: hasUpgrade1, hasUpg2: hasUpgrade2, hasUpg3: hasUpgrade3, hasUpg4: hasUpgrade4,
     hasUpg5: hasUpgrade5, hasUpg6: hasUpgrade6, hasUpg7: hasUpgrade7, hasUpg8: hasUpgrade8,
+    hasUpg9: hasUpgrade9, hasUpg10: hasUpgrade10,
     hasPermanent1: hasPermanent1, hasPermanent2: hasPermanent2, hasPermanent3: hasPermanent3, hasPermanent4: hasPermanent4, hasPermanent5: hasPermanent5,
     hasPermanent6: hasPermanent6, hasPermanent7: hasPermanent7, hasPermanent8: hasPermanent8,
     hasPermanent9: hasPermanent9, hasPermanent10: hasPermanent10, hasPermanent11: hasPermanent11, hasPermanent12: hasPermanent12,
@@ -146,6 +163,10 @@ function saveGame() {
     spacciatoreCount: spacciatoreCount, spacciatoreCurrentCost: spacciatoreCurrentCost,
     piantagioneCount: piantagioneCount, piantagioneCurrentCost: piantagioneCurrentCost,
     laboratorioCount: laboratorioCount, laboratorioCurrentCost: laboratorioCurrentCost,
+    cartelCount: cartelCount, cartelCurrentCost: cartelCurrentCost,
+    narcosubCount: narcosubCount, narcosubCurrentCost: narcosubCurrentCost,
+    chimicaCount: chimicaCount, chimicaCurrentCost: chimicaCurrentCost,
+    prestigeTokenMultiplier: prestigeTokenMultiplier,
     btcBalance: btcBalance, btcMiners: btcMiners, btcMinerCost: btcMinerCost,
     auraPoints: auraPoints, auraPrestigeCount: auraPrestigeCount, auraBaseMultiplier: auraBaseMultiplier,
     auraCostGrammi: auraCostGrammi, auraCostToken: auraCostToken, auraCostBtc: auraCostBtc,
@@ -188,6 +209,8 @@ function loadGame() {
     if (typeof savedGame.hasUpg6 !== "undefined") hasUpgrade6 = savedGame.hasUpg6;
     if (typeof savedGame.hasUpg7 !== "undefined") hasUpgrade7 = savedGame.hasUpg7;
     if (typeof savedGame.hasUpg8 !== "undefined") hasUpgrade8 = savedGame.hasUpg8;
+    if (typeof savedGame.hasUpg9 !== "undefined") hasUpgrade9 = savedGame.hasUpg9;
+    if (typeof savedGame.hasUpg10 !== "undefined") hasUpgrade10 = savedGame.hasUpg10;
     if (typeof savedGame.hasPermanent6 !== "undefined") hasPermanent6 = savedGame.hasPermanent6;
     if (typeof savedGame.hasPermanent7 !== "undefined") hasPermanent7 = savedGame.hasPermanent7;
     if (typeof savedGame.hasPermanent8 !== "undefined") hasPermanent8 = savedGame.hasPermanent8;
@@ -203,6 +226,13 @@ function loadGame() {
     if (typeof savedGame.piantagioneCurrentCost !== "undefined") piantagioneCurrentCost = savedGame.piantagioneCurrentCost;
     if (typeof savedGame.laboratorioCount !== "undefined") laboratorioCount = savedGame.laboratorioCount;
     if (typeof savedGame.laboratorioCurrentCost !== "undefined") laboratorioCurrentCost = savedGame.laboratorioCurrentCost;
+    if (typeof savedGame.cartelCount !== "undefined") cartelCount = savedGame.cartelCount;
+    if (typeof savedGame.cartelCurrentCost !== "undefined") cartelCurrentCost = savedGame.cartelCurrentCost;
+    if (typeof savedGame.narcosubCount !== "undefined") narcosubCount = savedGame.narcosubCount;
+    if (typeof savedGame.narcosubCurrentCost !== "undefined") narcosubCurrentCost = savedGame.narcosubCurrentCost;
+    if (typeof savedGame.chimicaCount !== "undefined") chimicaCount = savedGame.chimicaCount;
+    if (typeof savedGame.chimicaCurrentCost !== "undefined") chimicaCurrentCost = savedGame.chimicaCurrentCost;
+    if (typeof savedGame.prestigeTokenMultiplier !== "undefined") prestigeTokenMultiplier = savedGame.prestigeTokenMultiplier;
     if (typeof savedGame.btcBalance !== "undefined") btcBalance = savedGame.btcBalance;
     if (typeof savedGame.btcMiners !== "undefined") btcMiners = savedGame.btcMiners;
     if (typeof savedGame.btcMinerCost !== "undefined") btcMinerCost = savedGame.btcMinerCost;
@@ -310,16 +340,51 @@ function buyLaboratorio() {
   }
 }
 
+// Cartello: +1200 BPS, costo scala x1.12
+function buyCartel() {
+  if (score >= cartelCurrentCost) {
+    score -= cartelCurrentCost;
+    cartelCount++;
+    autoClickBPS += 1200;
+    cartelCurrentCost = Math.floor(cartelBaseCost * Math.pow(1.12, cartelCount));
+    updateDisplay();
+  }
+}
+
+// Narcosub (DMT): +8000 BPS, costo scala x1.12
+function buyNarcosub() {
+  if (score >= narcosubCurrentCost) {
+    score -= narcosubCurrentCost;
+    narcosubCount++;
+    autoClickBPS += 8000;
+    narcosubCurrentCost = Math.floor(narcosubBaseCost * Math.pow(1.12, narcosubCount));
+    updateDisplay();
+  }
+}
+
+// Chimica (Fentanyl): +60000 BPS, costo scala x1.12
+function buyChimica() {
+  if (score >= chimicaCurrentCost) {
+    score -= chimicaCurrentCost;
+    chimicaCount++;
+    autoClickBPS += 60000;
+    chimicaCurrentCost = Math.floor(chimicaBaseCost * Math.pow(1.12, chimicaCount));
+    updateDisplay();
+  }
+}
+
 function buyUpgrade(id, cost) {
   if (score >= cost) {
-    if (id === 1 && !hasUpgrade1) { score -= cost; hasUpgrade1 = true; }
-    if (id === 2 && !hasUpgrade2) { score -= cost; hasUpgrade2 = true; }
-    if (id === 3 && !hasUpgrade3) { score -= cost; hasUpgrade3 = true; }
-    if (id === 4 && !hasUpgrade4) { score -= cost; hasUpgrade4 = true; }
-    if (id === 5 && !hasUpgrade5) { score -= cost; hasUpgrade5 = true; }
-    if (id === 6 && !hasUpgrade6) { score -= cost; hasUpgrade6 = true; }
-    if (id === 7 && !hasUpgrade7) { score -= cost; hasUpgrade7 = true; }
-    if (id === 8 && !hasUpgrade8) { score -= cost; hasUpgrade8 = true; }
+    if (id === 1  && !hasUpgrade1)  { score -= cost; hasUpgrade1  = true; }
+    if (id === 2  && !hasUpgrade2)  { score -= cost; hasUpgrade2  = true; }
+    if (id === 3  && !hasUpgrade3)  { score -= cost; hasUpgrade3  = true; }
+    if (id === 4  && !hasUpgrade4)  { score -= cost; hasUpgrade4  = true; }
+    if (id === 5  && !hasUpgrade5)  { score -= cost; hasUpgrade5  = true; }
+    if (id === 6  && !hasUpgrade6)  { score -= cost; hasUpgrade6  = true; }
+    if (id === 7  && !hasUpgrade7)  { score -= cost; hasUpgrade7  = true; }
+    if (id === 8  && !hasUpgrade8)  { score -= cost; hasUpgrade8  = true; }
+    if (id === 9  && !hasUpgrade9)  { score -= cost; hasUpgrade9  = true; }
+    if (id === 10 && !hasUpgrade10) { score -= cost; hasUpgrade10 = true; }
     updateDisplay();
     saveGame();
   }
@@ -376,18 +441,24 @@ function buyPermanentUpgrade(id, tokenCost) {
 function doPrestige() {
   if (score >= prestigeThreshold) {
     prestigeMultiplier += 1;
-    epsteinTokens += 1 + auraShop.prestigeBonus;  // solo 1 token per prestige
-    prestigeThreshold = Math.floor(prestigeThreshold * 4);  // scala x4 (molto più lento)
+    prestigeTokenMultiplier *= 2;  // raddoppia ad ogni prestige
+    const tokensGained = Math.floor(prestigeTokenMultiplier * (1 + auraShop.prestigeBonus));
+    epsteinTokens += tokensGained;
+    prestigeThreshold = Math.floor(prestigeThreshold * 4);
     score = 0; clickPower = 1; autoClickBPS = 0;
     clickUpgradeCost = 15; autoClickerCost = 100; dryCost = 1200; frozenCost = 8000;
 
     hasUpgrade1 = false; hasUpgrade2 = false; hasUpgrade3 = false; hasUpgrade4 = false;
     hasUpgrade5 = false; hasUpgrade6 = false; hasUpgrade7 = false; hasUpgrade8 = false;
+    hasUpgrade9 = false; hasUpgrade10 = false;
     spacciatoreCount = 0; spacciatoreCurrentCost = spacciatoreBaseCost;
     piantagioneCount = 0; piantagioneCurrentCost = piantagioneBaseCost;
     laboratorioCount = 0; laboratorioCurrentCost = laboratorioBaseCost;
+    cartelCount = 0; cartelCurrentCost = cartelBaseCost;
+    narcosubCount = 0; narcosubCurrentCost = narcosubBaseCost;
+    chimicaCount = 0; chimicaCurrentCost = chimicaBaseCost;
 
-    alert("Hai fatto Prestigio! Moltiplicatore x" + prestigeMultiplier + " | +1 Epstein Token 🔷\nProssimo prestigio: " + formatNum(prestigeThreshold) + " grammi");
+    alert(`Prestigio x${prestigeMultiplier}! +${formatNum(tokensGained)} Token 🔷 (prossimo ×2)\nProssimo: ${formatNum(prestigeThreshold)} grammi`);
     updateDisplay(); saveGame(); switchPage('forno');
   }
 }
@@ -406,6 +477,7 @@ function doAuraPrestige() {
 
   hasUpgrade1 = false; hasUpgrade2 = false; hasUpgrade3 = false; hasUpgrade4 = false;
   hasUpgrade5 = false; hasUpgrade6 = false; hasUpgrade7 = false; hasUpgrade8 = false;
+  hasUpgrade9 = false; hasUpgrade10 = false;
 
   hasPermanent1 = false; hasPermanent2 = false; hasPermanent3 = false; hasPermanent4 = false;
   hasPermanent5 = false; hasPermanent6 = false; hasPermanent7 = false; hasPermanent8 = false;
@@ -416,6 +488,10 @@ function doAuraPrestige() {
   spacciatoreCount = 0; spacciatoreCurrentCost = spacciatoreBaseCost;
   piantagioneCount = 0; piantagioneCurrentCost = piantagioneBaseCost;
   laboratorioCount = 0; laboratorioCurrentCost = laboratorioBaseCost;
+  cartelCount = 0; cartelCurrentCost = cartelBaseCost;
+  narcosubCount = 0; narcosubCurrentCost = narcosubBaseCost;
+  chimicaCount = 0; chimicaCurrentCost = chimicaBaseCost;
+  prestigeTokenMultiplier = 1;
 
   epsteinTokens = 0; btcBalance = 0; btcMiners = 0; btcMinerCost = 1;
 
@@ -693,6 +769,12 @@ function updateDisplay() {
   document.getElementById('spacciatore-cost').textContent = formatNum(spacciatoreCurrentCost);
   document.getElementById('piantagione-cost').textContent = formatNum(piantagioneCurrentCost);
   document.getElementById('laboratorio-cost').textContent = formatNum(laboratorioCurrentCost);
+  const cartelEl = document.getElementById('cartel-cost');
+  if (cartelEl) cartelEl.textContent = formatNum(cartelCurrentCost);
+  const narcosubEl = document.getElementById('narcosub-cost');
+  if (narcosubEl) narcosubEl.textContent = formatNum(narcosubCurrentCost);
+  const chimicaEl = document.getElementById('chimica-cost');
+  if (chimicaEl) chimicaEl.textContent = formatNum(chimicaCurrentCost);
   prestigeDisplay.textContent = formatNum(prestigeMultiplier);
   document.getElementById('epstein-token-display').textContent = formatNum(epsteinTokens);
   document.getElementById('bj-tokens').textContent = formatNum(epsteinTokens);
@@ -709,9 +791,16 @@ function updateDisplay() {
   document.getElementById('btn-spacciatore').disabled = score < spacciatoreCurrentCost || isSpinning;
   document.getElementById('btn-piantagione').disabled = score < piantagioneCurrentCost || isSpinning;
   document.getElementById('btn-laboratorio').disabled = score < laboratorioCurrentCost || isSpinning;
+  const btnCartel = document.getElementById('btn-cartel');
+  if (btnCartel) btnCartel.disabled = score < cartelCurrentCost || isSpinning;
+  const btnNarcosub = document.getElementById('btn-narcosub');
+  if (btnNarcosub) btnNarcosub.disabled = score < narcosubCurrentCost || isSpinning;
+  const btnChimica = document.getElementById('btn-chimica');
+  if (btnChimica) btnChimica.disabled = score < chimicaCurrentCost || isSpinning;
   document.getElementById('btn-prestige').disabled = score < prestigeThreshold || isSpinning;
 
   function setUpgBtnState(btn, hasBought, cost, title) {
+    if (!btn) return;
     if (hasBought) {
       btn.textContent = `✅ ${title} (Acquistato)`;
       btn.classList.add('bought');
@@ -723,14 +812,16 @@ function updateDisplay() {
     }
   }
 
-  setUpgBtnState(btnUpg1, hasUpgrade1, 2500, "🖱️ Sniffer (Click x2)");
-  setUpgBtnState(btnUpg2, hasUpgrade2, 10000, "✨ Cocaina (WPS x2)");
-  setUpgBtnState(btnUpg3, hasUpgrade3, 50000, "🍫 Robba buona (Click x3)");
-  setUpgBtnState(btnUpg4, hasUpgrade4, 100000, "🔥 ts lit as fuck (WPS x3)");
-  setUpgBtnState(document.getElementById('btn-upg5'), hasUpgrade5, 300000, "🌙 Stephen Hawking (Click x4)");
-  setUpgBtnState(document.getElementById('btn-upg6'), hasUpgrade6, 750000, "💊 Pasticche (WPS x4)");
-  setUpgBtnState(document.getElementById('btn-upg7'), hasUpgrade7, 2000000, "🎯 Triple T (Click x5)");
-  setUpgBtnState(document.getElementById('btn-upg8'), hasUpgrade8, 5000000, "🏔️ Crazy Mode (WPS x5)");
+  setUpgBtnState(btnUpg1,                                  hasUpgrade1,  10000000,   "🌿 Erba Premium (Click x2)");
+  setUpgBtnState(btnUpg2,                                  hasUpgrade2,  50000000,   "❄️ Frozen Boost (BPS x2)");
+  setUpgBtnState(btnUpg3,                                  hasUpgrade3,  250000000,  "💊 Pasticche (Click x3)");
+  setUpgBtnState(btnUpg4,                                  hasUpgrade4,  500000000,  "🔥 Crack (BPS x3)");
+  setUpgBtnState(document.getElementById('btn-upg5'),      hasUpgrade5,  2000000000, "🍄 Funghi (Click x4)");
+  setUpgBtnState(document.getElementById('btn-upg6'),      hasUpgrade6,  5000000000, "💉 Eroina (BPS x4)");
+  setUpgBtnState(document.getElementById('btn-upg7'),      hasUpgrade7,  20000000000,"🧪 Metanfetamina (Click x5)");
+  setUpgBtnState(document.getElementById('btn-upg8'),      hasUpgrade8,  50000000000,"☠️ Fentanyl (BPS x5)");
+  setUpgBtnState(document.getElementById('btn-upg9'),      hasUpgrade9,  200000000000,"🌀 DMT (Click x6)");
+  setUpgBtnState(document.getElementById('btn-upg10'),     hasUpgrade10, 500000000000,"💀 Krokodil (BPS x6)");
 
   function setPermanentBtnState(btn, hasBought, cost, title) {
     if (hasBought) {
@@ -753,7 +844,7 @@ function updateDisplay() {
   setPermanentBtnState(document.getElementById('btn-perm7'), hasPermanent7, 25,  "🎯 Click x5");
   setPermanentBtnState(document.getElementById('btn-perm8'), hasPermanent8, 30,  "🔥 BPS x5");
   setPermanentBtnState(document.getElementById('btn-perm9'), hasPermanent9, 40,  "₿ BTC Miner x2");
-  setPermanentBtnState(document.getElementById('btn-perm10'), hasPermanent10, 60, "🌌 Tutto x2");
+  setPermanentBtnState(document.getElementById('btn-perm10'), hasPermanent10, 60, "🌌 Zanotti Sgravo Mode (Tutto x2)");
 
   updateAuraDisplay();
 }
