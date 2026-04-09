@@ -144,10 +144,8 @@ function getEffBps() {
   return autoClickBPS * multiplier * effectivePrestige * permanentBpsMultiplier * auraBaseMultiplier * auraShop.bpsBoost;
 }
 
-// --- FUNZIONI DI SALVATAGGIO ---
-function saveGame() {
-  const gameSave = {
-    score: score, clickPower: clickPower, autoClickBPS: autoClickBPS,
+function buildSaveObject() {
+  return {score: score, clickPower: clickPower, autoClickBPS: autoClickBPS,
     prestigeMultiplier: prestigeMultiplier, epsteinTokens: epsteinTokens, battlePassLevel: battlePassLevel, clickUpgradeCost: clickUpgradeCost,
     autoClickerCost: autoClickerCost, dryCost: dryCost,
     frozenCost: frozenCost, mysteryCost: mysteryCost,
@@ -170,86 +168,143 @@ function saveGame() {
     btcBalance: btcBalance, btcMiners: btcMiners, btcMinerCost: btcMinerCost,
     auraPoints: auraPoints, auraPrestigeCount: auraPrestigeCount, auraBaseMultiplier: auraBaseMultiplier,
     auraCostGrammi: auraCostGrammi, auraCostToken: auraCostToken, auraCostBtc: auraCostBtc,
-    auraShop: JSON.stringify(auraShop), auraShopCosts: JSON.stringify(auraShopCosts)
-  };
-  localStorage.setItem("IlGiroSave", JSON.stringify(gameSave));
-  saveNotification.style.opacity = 1;
-  setTimeout(() => { saveNotification.style.opacity = 0; }, 1500);
+    auraShop: JSON.stringify(auraShop), auraShopCosts: JSON.stringify(auraShopCosts)}
 }
 
-function loadGame() {
-  const savedGame = JSON.parse(localStorage.getItem("IlGiroSave"));
-  if (savedGame !== null) {
-    if (typeof savedGame.score !== "undefined") score = savedGame.score;
-    if (typeof savedGame.clickPower !== "undefined") clickPower = savedGame.clickPower;
-    if (typeof savedGame.autoClickBPS !== "undefined") autoClickBPS = savedGame.autoClickBPS;
-    if (typeof savedGame.prestigeMultiplier !== "undefined") prestigeMultiplier = savedGame.prestigeMultiplier;
-    if (typeof savedGame.clickUpgradeCost !== "undefined") clickUpgradeCost = savedGame.clickUpgradeCost;
-    if (typeof savedGame.autoClickerCost !== "undefined") autoClickerCost = savedGame.autoClickerCost;
-    if (typeof savedGame.dryCost !== "undefined") dryCost = savedGame.dryCost;
-    if (typeof savedGame.frozenCost !== "undefined") frozenCost = savedGame.frozenCost;
-    if (typeof savedGame.mysteryCost !== "undefined") mysteryCost = savedGame.mysteryCost;
-    if (typeof savedGame.prestigeThreshold !== "undefined") prestigeThreshold = savedGame.prestigeThreshold;
-    if (typeof savedGame.epsteinTokens !== "undefined") epsteinTokens = savedGame.epsteinTokens;
-    if (typeof savedGame.battlePassLevel !== "undefined") battlePassLevel = savedGame.battlePassLevel;
-    if (typeof savedGame.hasPermanent1 !== "undefined") hasPermanent1 = savedGame.hasPermanent1;
-    if (typeof savedGame.hasPermanent2 !== "undefined") hasPermanent2 = savedGame.hasPermanent2;
-    if (typeof savedGame.hasPermanent3 !== "undefined") hasPermanent3 = savedGame.hasPermanent3;
-    if (typeof savedGame.hasPermanent4 !== "undefined") hasPermanent4 = savedGame.hasPermanent4;
-    if (typeof savedGame.hasPermanent5 !== "undefined") hasPermanent5 = savedGame.hasPermanent5;
-    if (typeof savedGame.permanentClickMultiplier !== "undefined") permanentClickMultiplier = savedGame.permanentClickMultiplier;
-    if (typeof savedGame.permanentBpsMultiplier !== "undefined") permanentBpsMultiplier = savedGame.permanentBpsMultiplier;
-    if (typeof savedGame.permanentPrestigeMultiplier !== "undefined") permanentPrestigeMultiplier = savedGame.permanentPrestigeMultiplier;
+// --- FUNZIONI DI SALVATAGGIO ---
+async function saveGame() {
+  const auth = window.__fbAuth;
+  const { db } = window;
+  const user = auth?.currentUser;
+  if (!user) { /* fallback localStorage */ localStorage.setItem("IlGiroSave", JSON.stringify(buildSaveObject())); return; }
 
-    if (typeof savedGame.hasUpg1 !== "undefined") hasUpgrade1 = savedGame.hasUpg1;
-    if (typeof savedGame.hasUpg2 !== "undefined") hasUpgrade2 = savedGame.hasUpg2;
-    if (typeof savedGame.hasUpg3 !== "undefined") hasUpgrade3 = savedGame.hasUpg3;
-    if (typeof savedGame.hasUpg4 !== "undefined") hasUpgrade4 = savedGame.hasUpg4;
-    if (typeof savedGame.hasUpg5 !== "undefined") hasUpgrade5 = savedGame.hasUpg5;
-    if (typeof savedGame.hasUpg6 !== "undefined") hasUpgrade6 = savedGame.hasUpg6;
-    if (typeof savedGame.hasUpg7 !== "undefined") hasUpgrade7 = savedGame.hasUpg7;
-    if (typeof savedGame.hasUpg8 !== "undefined") hasUpgrade8 = savedGame.hasUpg8;
-    if (typeof savedGame.hasUpg9 !== "undefined") hasUpgrade9 = savedGame.hasUpg9;
-    if (typeof savedGame.hasUpg10 !== "undefined") hasUpgrade10 = savedGame.hasUpg10;
-    if (typeof savedGame.hasPermanent6 !== "undefined") hasPermanent6 = savedGame.hasPermanent6;
-    if (typeof savedGame.hasPermanent7 !== "undefined") hasPermanent7 = savedGame.hasPermanent7;
-    if (typeof savedGame.hasPermanent8 !== "undefined") hasPermanent8 = savedGame.hasPermanent8;
-    if (typeof savedGame.hasPermanent9 !== "undefined") hasPermanent9 = savedGame.hasPermanent9;
-    if (typeof savedGame.hasPermanent10 !== "undefined") hasPermanent10 = savedGame.hasPermanent10;
-    if (typeof savedGame.hasPermanent11 !== "undefined") hasPermanent11 = savedGame.hasPermanent11;
-    if (typeof savedGame.hasPermanent12 !== "undefined") hasPermanent12 = savedGame.hasPermanent12;
-    if (typeof savedGame.permanentTokensPerSecond !== "undefined") permanentTokensPerSecond = savedGame.permanentTokensPerSecond;
-    if (typeof savedGame.permanentBtcMultiplier !== "undefined") permanentBtcMultiplier = savedGame.permanentBtcMultiplier;
-    if (typeof savedGame.spacciatoreCount !== "undefined") spacciatoreCount = savedGame.spacciatoreCount;
-    if (typeof savedGame.spacciatoreCurrentCost !== "undefined") spacciatoreCurrentCost = savedGame.spacciatoreCurrentCost;
-    if (typeof savedGame.piantagioneCount !== "undefined") piantagioneCount = savedGame.piantagioneCount;
-    if (typeof savedGame.piantagioneCurrentCost !== "undefined") piantagioneCurrentCost = savedGame.piantagioneCurrentCost;
-    if (typeof savedGame.laboratorioCount !== "undefined") laboratorioCount = savedGame.laboratorioCount;
-    if (typeof savedGame.laboratorioCurrentCost !== "undefined") laboratorioCurrentCost = savedGame.laboratorioCurrentCost;
-    if (typeof savedGame.cartelCount !== "undefined") cartelCount = savedGame.cartelCount;
-    if (typeof savedGame.cartelCurrentCost !== "undefined") cartelCurrentCost = savedGame.cartelCurrentCost;
-    if (typeof savedGame.narcosubCount !== "undefined") narcosubCount = savedGame.narcosubCount;
-    if (typeof savedGame.narcosubCurrentCost !== "undefined") narcosubCurrentCost = savedGame.narcosubCurrentCost;
-    if (typeof savedGame.chimicaCount !== "undefined") chimicaCount = savedGame.chimicaCount;
-    if (typeof savedGame.chimicaCurrentCost !== "undefined") chimicaCurrentCost = savedGame.chimicaCurrentCost;
-    if (typeof savedGame.prestigeTokenMultiplier !== "undefined") prestigeTokenMultiplier = savedGame.prestigeTokenMultiplier;
-    if (typeof savedGame.btcBalance !== "undefined") btcBalance = savedGame.btcBalance;
-    if (typeof savedGame.btcMiners !== "undefined") btcMiners = savedGame.btcMiners;
-    if (typeof savedGame.btcMinerCost !== "undefined") btcMinerCost = savedGame.btcMinerCost;
-    if (typeof savedGame.auraPoints !== "undefined") auraPoints = savedGame.auraPoints;
-    if (typeof savedGame.auraPrestigeCount !== "undefined") auraPrestigeCount = savedGame.auraPrestigeCount;
-    if (typeof savedGame.auraBaseMultiplier !== "undefined") auraBaseMultiplier = savedGame.auraBaseMultiplier;
-    if (typeof savedGame.auraCostGrammi !== "undefined") auraCostGrammi = savedGame.auraCostGrammi;
-    if (typeof savedGame.auraCostToken !== "undefined") auraCostToken = savedGame.auraCostToken;
-    if (typeof savedGame.auraCostBtc !== "undefined") auraCostBtc = savedGame.auraCostBtc;
-    if (typeof savedGame.auraShop !== "undefined") {
-      try { Object.assign(auraShop, JSON.parse(savedGame.auraShop)); } catch(e) {}
-    }
-    if (typeof savedGame.auraShopCosts !== "undefined") {
-      try { Object.assign(auraShopCosts, JSON.parse(savedGame.auraShopCosts)); } catch(e) {}
-    }
+  const { doc, setDoc } = window.__fbFunctions;
+  await setDoc(doc(window.__fbDb, "saves", user.uid), buildSaveObject());
+  // mostra notifica...
+}
+
+function applyLoadedGame(savedGame) {
+  if (!savedGame) return;
+  if (typeof savedGame.score !== "undefined") score = savedGame.score;
+  if (typeof savedGame.clickPower !== "undefined") clickPower = savedGame.clickPower;
+  if (typeof savedGame.autoClickBPS !== "undefined") autoClickBPS = savedGame.autoClickBPS;
+  if (typeof savedGame.prestigeMultiplier !== "undefined") prestigeMultiplier = savedGame.prestigeMultiplier;
+  if (typeof savedGame.clickUpgradeCost !== "undefined") clickUpgradeCost = savedGame.clickUpgradeCost;
+  if (typeof savedGame.autoClickerCost !== "undefined") autoClickerCost = savedGame.autoClickerCost;
+  if (typeof savedGame.dryCost !== "undefined") dryCost = savedGame.dryCost;
+  if (typeof savedGame.frozenCost !== "undefined") frozenCost = savedGame.frozenCost;
+  if (typeof savedGame.mysteryCost !== "undefined") mysteryCost = savedGame.mysteryCost;
+  if (typeof savedGame.prestigeThreshold !== "undefined") prestigeThreshold = savedGame.prestigeThreshold;
+  if (typeof savedGame.epsteinTokens !== "undefined") epsteinTokens = savedGame.epsteinTokens;
+  if (typeof savedGame.battlePassLevel !== "undefined") battlePassLevel = savedGame.battlePassLevel;
+  if (typeof savedGame.hasPermanent1 !== "undefined") hasPermanent1 = savedGame.hasPermanent1;
+  if (typeof savedGame.hasPermanent2 !== "undefined") hasPermanent2 = savedGame.hasPermanent2;
+  if (typeof savedGame.hasPermanent3 !== "undefined") hasPermanent3 = savedGame.hasPermanent3;
+  if (typeof savedGame.hasPermanent4 !== "undefined") hasPermanent4 = savedGame.hasPermanent4;
+  if (typeof savedGame.hasPermanent5 !== "undefined") hasPermanent5 = savedGame.hasPermanent5;
+  if (typeof savedGame.permanentClickMultiplier !== "undefined") permanentClickMultiplier = savedGame.permanentClickMultiplier;
+  if (typeof savedGame.permanentBpsMultiplier !== "undefined") permanentBpsMultiplier = savedGame.permanentBpsMultiplier;
+  if (typeof savedGame.permanentPrestigeMultiplier !== "undefined") permanentPrestigeMultiplier = savedGame.permanentPrestigeMultiplier;
+
+  if (typeof savedGame.hasUpg1 !== "undefined") hasUpgrade1 = savedGame.hasUpg1;
+  if (typeof savedGame.hasUpg2 !== "undefined") hasUpgrade2 = savedGame.hasUpg2;
+  if (typeof savedGame.hasUpg3 !== "undefined") hasUpgrade3 = savedGame.hasUpg3;
+  if (typeof savedGame.hasUpg4 !== "undefined") hasUpgrade4 = savedGame.hasUpg4;
+  if (typeof savedGame.hasUpg5 !== "undefined") hasUpgrade5 = savedGame.hasUpg5;
+  if (typeof savedGame.hasUpg6 !== "undefined") hasUpgrade6 = savedGame.hasUpg6;
+  if (typeof savedGame.hasUpg7 !== "undefined") hasUpgrade7 = savedGame.hasUpg7;
+  if (typeof savedGame.hasUpg8 !== "undefined") hasUpgrade8 = savedGame.hasUpg8;
+  if (typeof savedGame.hasUpg9 !== "undefined") hasUpgrade9 = savedGame.hasUpg9;
+  if (typeof savedGame.hasUpg10 !== "undefined") hasUpgrade10 = savedGame.hasUpg10;
+  if (typeof savedGame.hasPermanent6 !== "undefined") hasPermanent6 = savedGame.hasPermanent6;
+  if (typeof savedGame.hasPermanent7 !== "undefined") hasPermanent7 = savedGame.hasPermanent7;
+  if (typeof savedGame.hasPermanent8 !== "undefined") hasPermanent8 = savedGame.hasPermanent8;
+  if (typeof savedGame.hasPermanent9 !== "undefined") hasPermanent9 = savedGame.hasPermanent9;
+  if (typeof savedGame.hasPermanent10 !== "undefined") hasPermanent10 = savedGame.hasPermanent10;
+  if (typeof savedGame.hasPermanent11 !== "undefined") hasPermanent11 = savedGame.hasPermanent11;
+  if (typeof savedGame.hasPermanent12 !== "undefined") hasPermanent12 = savedGame.hasPermanent12;
+  if (typeof savedGame.permanentTokensPerSecond !== "undefined") permanentTokensPerSecond = savedGame.permanentTokensPerSecond;
+  if (typeof savedGame.permanentBtcMultiplier !== "undefined") permanentBtcMultiplier = savedGame.permanentBtcMultiplier;
+  if (typeof savedGame.spacciatoreCount !== "undefined") spacciatoreCount = savedGame.spacciatoreCount;
+  if (typeof savedGame.spacciatoreCurrentCost !== "undefined") spacciatoreCurrentCost = savedGame.spacciatoreCurrentCost;
+  if (typeof savedGame.piantagioneCount !== "undefined") piantagioneCount = savedGame.piantagioneCount;
+  if (typeof savedGame.piantagioneCurrentCost !== "undefined") piantagioneCurrentCost = savedGame.piantagioneCurrentCost;
+  if (typeof savedGame.laboratorioCount !== "undefined") laboratorioCount = savedGame.laboratorioCount;
+  if (typeof savedGame.laboratorioCurrentCost !== "undefined") laboratorioCurrentCost = savedGame.laboratorioCurrentCost;
+  if (typeof savedGame.cartelCount !== "undefined") cartelCount = savedGame.cartelCount;
+  if (typeof savedGame.cartelCurrentCost !== "undefined") cartelCurrentCost = savedGame.cartelCurrentCost;
+  if (typeof savedGame.narcosubCount !== "undefined") narcosubCount = savedGame.narcosubCount;
+  if (typeof savedGame.narcosubCurrentCost !== "undefined") narcosubCurrentCost = savedGame.narcosubCurrentCost;
+  if (typeof savedGame.chimicaCount !== "undefined") chimicaCount = savedGame.chimicaCount;
+  if (typeof savedGame.chimicaCurrentCost !== "undefined") chimicaCurrentCost = savedGame.chimicaCurrentCost;
+  if (typeof savedGame.prestigeTokenMultiplier !== "undefined") prestigeTokenMultiplier = savedGame.prestigeTokenMultiplier;
+  if (typeof savedGame.btcBalance !== "undefined") btcBalance = savedGame.btcBalance;
+  if (typeof savedGame.btcMiners !== "undefined") btcMiners = savedGame.btcMiners;
+  if (typeof savedGame.btcMinerCost !== "undefined") btcMinerCost = savedGame.btcMinerCost;
+  if (typeof savedGame.auraPoints !== "undefined") auraPoints = savedGame.auraPoints;
+  if (typeof savedGame.auraPrestigeCount !== "undefined") auraPrestigeCount = savedGame.auraPrestigeCount;
+  if (typeof savedGame.auraBaseMultiplier !== "undefined") auraBaseMultiplier = savedGame.auraBaseMultiplier;
+  if (typeof savedGame.auraCostGrammi !== "undefined") auraCostGrammi = savedGame.auraCostGrammi;
+  if (typeof savedGame.auraCostToken !== "undefined") auraCostToken = savedGame.auraCostToken;
+  if (typeof savedGame.auraCostBtc !== "undefined") auraCostBtc = savedGame.auraCostBtc;
+  if (typeof savedGame.auraShop !== "undefined") {
+    try { Object.assign(auraShop, JSON.parse(savedGame.auraShop)); } catch(e) {}
+  }
+  if (typeof savedGame.auraShopCosts !== "undefined") {
+    try { Object.assign(auraShopCosts, JSON.parse(savedGame.auraShopCosts)); } catch(e) {}
   }
 }
+
+// Carica da localStorage (utente non loggato)
+function loadFromLocalStorage() {
+  const savedGame = JSON.parse(localStorage.getItem("IlGiroSave"));
+  applyLoadedData(savedGame);
+}
+
+// Carica da Firestore (utente loggato)
+async function loadGame() {
+  const user = window.__fbAuth?.currentUser;
+  if (!user) {
+    loadFromLocalStorage();
+    return;
+  }
+  const { doc, getDoc } = window.__fbFunctions;
+  const snap = await getDoc(doc(window.__fbDb, "saves", user.uid));
+  if (snap.exists()) applyLoadedData(snap.data());
+}
+
+async function authLogin() {
+  const { signInWithEmailAndPassword } = window.__fbFunctions;
+  const email = document.getElementById('auth-email').value;
+  const pass = document.getElementById('auth-pass').value;
+  try {
+    await signInWithEmailAndPassword(window.__fbAuth, email, pass);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = 'Credenziali errate.';
+  }
+}
+
+async function authRegister() {
+  const { createUserWithEmailAndPassword } = window.__fbFunctions;
+  const email = document.getElementById('auth-email').value;
+  const pass = document.getElementById('auth-pass').value;
+  try {
+    await createUserWithEmailAndPassword(window.__fbAuth, email, pass);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = 'Errore registrazione: ' + e.message;
+  }
+}
+
+// Ascolta il cambio di stato auth
+window.__fbFunctions.onAuthStateChanged(window.__fbAuth, async (user) => {
+  if (user) {
+    document.getElementById('auth-panel').style.display = 'none';
+    await loadGame(); // carica dal cloud
+    updateDisplay();
+  } else {
+    document.getElementById('auth-panel').style.display = 'flex';
+  }
+});
 
 function resetGame() {
   if (confirm("Vuoi cancellare TUTTI i tuoi progressi?")) {
