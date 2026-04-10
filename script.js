@@ -17,9 +17,11 @@ let autoClickerCost = 100;
 let dryCost = 1200;
 let frozenCost = 8000;
 let mysteryCost = 1000;
-let prestigeThreshold = 500000;  // primo prestige richiede 500k grammi
+let prestigeThreshold = 500_000;  // primo prestige richiede 500k grammi
 
 // Variabili per i Potenziamenti (Upgrade)
+// TODO fare una variabile per il click con il numero di click al secondo
+// TODO fare una variabile per il BPS con il numero di bps
 let hasUpgrade1 = false; // Click x2
 let hasUpgrade2 = false; // BPS x2
 let hasUpgrade3 = false; // Click x3
@@ -33,14 +35,14 @@ let hasUpgrade10 = false; // BPS x6
 
 // Nuovi negozio base
 let spacciatoreCount = 0;
-let spacciatoreBaseCost = 40000;
-let spacciatoreCurrentCost = 40000;
+let spacciatoreBaseCost = 40_000;
+let spacciatoreCurrentCost = 40_000;
 let piantagioneCount = 0;
-let piantagioneBaseCost = 300000;
-let piantagioneCurrentCost = 300000;
+let piantagioneBaseCost = 300_000;
+let piantagioneCurrentCost = 300_000;
 let laboratorioCount = 0;
-let laboratorioBaseCost = 3000000;
-let laboratorioCurrentCost = 3000000;
+let laboratorioBaseCost = 3_000_000;
+let laboratorioCurrentCost = 3_000_000;
 // Nuovi edifici
 let cartelCount = 0;
 let cartelBaseCost = 30_000_000;
@@ -92,6 +94,7 @@ let auraShop = {
   prestigeBonus: 0,   // token extra per ogni prestige
   startMult:     1,   // moltiplicatore che parte dall'inizio dopo aura prestige
 };
+
 // Costi in Punti Aura per ogni upgrade (aumentano)
 let auraShopCosts = {
   clickBoost:    3,
@@ -118,6 +121,12 @@ const btnUpg1 = document.getElementById('btn-upg1');
 const btnUpg2 = document.getElementById('btn-upg2');
 const btnUpg3 = document.getElementById('btn-upg3');
 const btnUpg4 = document.getElementById('btn-upg4');
+const btnUpg5 = document.getElementById('btn-upg5');
+const btnUpg6 = document.getElementById('btn-upg6');
+const btnUpg7 = document.getElementById('btn-upg7');
+const btnUpg8 = document.getElementById('btn-upg8');
+const btnUpg9 = document.getElementById('btn-upg9');
+const btnUpg10 = document.getElementById('btn-upg10');
 
 const saveNotification = document.getElementById('save-notification');
 
@@ -867,16 +876,16 @@ function updateDisplay() {
     }
   }
 
-  setUpgBtnState(btnUpg1,                                  hasUpgrade1,  10000000,   "🌿 Erba Premium (Click x2)");
-  setUpgBtnState(btnUpg2,                                  hasUpgrade2,  50000000,   "❄️ Frozen Boost (BPS x2)");
-  setUpgBtnState(btnUpg3,                                  hasUpgrade3,  250000000,  "💊 Pasticche (Click x3)");
-  setUpgBtnState(btnUpg4,                                  hasUpgrade4,  500000000,  "🔥 Crack (BPS x3)");
-  setUpgBtnState(document.getElementById('btn-upg5'),      hasUpgrade5,  2000000000, "🍄 Funghi (Click x4)");
-  setUpgBtnState(document.getElementById('btn-upg6'),      hasUpgrade6,  5000000000, "💉 Eroina (BPS x4)");
-  setUpgBtnState(document.getElementById('btn-upg7'),      hasUpgrade7,  20000000000,"🧪 Metanfetamina (Click x5)");
-  setUpgBtnState(document.getElementById('btn-upg8'),      hasUpgrade8,  50000000000,"☠️ Fentanyl (BPS x5)");
-  setUpgBtnState(document.getElementById('btn-upg9'),      hasUpgrade9,  200000000000,"🌀 DMT (Click x6)");
-  setUpgBtnState(document.getElementById('btn-upg10'),     hasUpgrade10, 500000000000,"💀 Krokodil (BPS x6)");
+  setUpgBtnState(btnUpg1,  hasUpgrade1,  10000000,   "🌿 Erba Premium (Click x2)");
+  setUpgBtnState(btnUpg2,  hasUpgrade2,  50000000,   "❄️ Frozen Boost (BPS x2)");
+  setUpgBtnState(btnUpg3,  hasUpgrade3,  250000000,  "💊 Pasticche (Click x3)");
+  setUpgBtnState(btnUpg4,  hasUpgrade4,  500000000,  "🔥 Crack (BPS x3)");
+  setUpgBtnState(btnUpg5,  hasUpgrade5,  2000000000, "🍄 Funghi (Click x4)");
+  setUpgBtnState(btnUpg6,  hasUpgrade6,  5000000000, "💉 Eroina (BPS x4)");
+  setUpgBtnState(btnUpg7,  hasUpgrade7,  20000000000,"🧪 Metanfetamina (Click x5)");
+  setUpgBtnState(btnUpg8,  hasUpgrade8,  50000000000,"☠️ Fentanyl (BPS x5)");
+  setUpgBtnState(btnUpg9,  hasUpgrade9,  200000000000,"🌀 DMT (Click x6)");
+  setUpgBtnState(btnUpg10, hasUpgrade10, 500000000000,"💀 Krokodil (BPS x6)");
 
   function setPermanentBtnState(btn, hasBought, cost, title) {
     if (hasBought) {
